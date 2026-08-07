@@ -61,10 +61,10 @@ export function TopNavBar() {
             : "bg-white/90 backdrop-blur-md border-b border-slate-200/60 py-4 shadow-sm text-slate-900"
         }`}
       >
-        <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+        <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-2">
           
           {/* Logo - Far Left */}
-          <div className="flex-1 flex justify-start items-center">
+          <div className="flex-initial flex justify-start items-center">
             <Link
               href="/"
               className="group flex items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-lg"
@@ -84,10 +84,10 @@ export function TopNavBar() {
             </Link>
           </div>
 
-          {/* Navigation Links - Centered */}
+          {/* Navigation Links - Shifted slightly right with reduced gap between components */}
           <nav
             aria-label="Main Navigation"
-            className="hidden lg:flex items-center justify-center gap-1 xl:gap-3 flex-initial"
+            className="hidden lg:flex items-center justify-end gap-0.5 xl:gap-1.5 flex-1 lg:pl-12 xl:pl-20 pr-4"
           >
             {NAV_ITEMS.map((item) => {
               const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
@@ -96,19 +96,19 @@ export function TopNavBar() {
               return (
                 <div
                   key={item.label}
-                  className="relative group py-2 px-3"
+                  className="relative group py-2 px-1.5 xl:px-2"
                   onMouseEnter={() => hasSubmenu && setActiveDropdown(item.label)}
                   onMouseLeave={() => hasSubmenu && setActiveDropdown(null)}
                 >
                   <Link
                     href={item.href}
-                    className={`relative inline-flex items-center gap-1.5 font-sans text-xs xl:text-sm uppercase tracking-widest font-semibold transition-colors duration-300 py-1.5 focus:outline-none focus-visible:ring-1 focus-visible:ring-secondary rounded ${
+                    className={`relative inline-flex items-center gap-1 font-sans text-xs xl:text-sm uppercase tracking-wider font-semibold transition-colors duration-300 py-1 focus:outline-none focus-visible:ring-1 focus-visible:ring-secondary rounded ${
                       isActive ? "text-secondary font-bold" : "text-slate-700 hover:text-slate-950"
                     }`}
                   >
                     <span>{item.label}</span>
                     {hasSubmenu && (
-                      <ChevronDown className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-180 text-slate-500 group-hover:text-secondary" />
+                      <ChevronDown className="w-3 h-3 transition-transform duration-300 group-hover:rotate-180 text-slate-500 group-hover:text-secondary" />
                     )}
 
                     {/* Hardware-accelerated left-to-right underline animation */}
@@ -119,7 +119,7 @@ export function TopNavBar() {
                     />
                   </Link>
 
-                  {/* Clean Submenu Dropdown (Only Titles, No White Card Box, No Arrows) */}
+                  {/* Submenu Dropdown */}
                   {hasSubmenu && item.submenu && (
                     <div
                       className={`absolute top-full left-1/2 -translate-x-1/2 pt-2 w-56 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${
@@ -151,7 +151,7 @@ export function TopNavBar() {
           </nav>
 
           {/* CTA Button & Mobile Toggle - Far Right */}
-          <div className="flex-1 flex justify-end items-center gap-3">
+          <div className="flex-initial flex justify-end items-center gap-3">
             <Link href="/booking" className="hidden sm:inline-flex">
               <Button
                 variant="primary"
@@ -275,6 +275,7 @@ export function TopNavBar() {
     </>
   );
 }
+
 
 
 
