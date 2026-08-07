@@ -77,9 +77,6 @@ export function TopNavBar() {
                 <span className="font-heading text-lg md:text-2xl font-extrabold tracking-tight text-slate-900 flex items-center gap-1.5 leading-none">
                   KB <span className="text-secondary font-black tracking-widest">GARAGE</span>
                 </span>
-                <span className="text-[10px] tracking-widest uppercase font-mono text-slate-500 font-medium hidden sm:block">
-                  Precision Engineering
-                </span>
               </div>
             </Link>
           </div>
