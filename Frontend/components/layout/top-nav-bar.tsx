@@ -84,10 +84,10 @@ export function TopNavBar() {
             </Link>
           </div>
 
-          {/* Navigation Links - Shifted slightly right with reduced gap between components */}
+          {/* Navigation Links - Shifted slightly left side */}
           <nav
             aria-label="Main Navigation"
-            className="hidden lg:flex items-center justify-end gap-0.5 xl:gap-1.5 flex-1 lg:pl-12 xl:pl-20 pr-4"
+            className="hidden lg:flex items-center justify-start gap-1 xl:gap-2 flex-1 lg:pl-8 xl:pl-12"
           >
             {NAV_ITEMS.map((item) => {
               const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
