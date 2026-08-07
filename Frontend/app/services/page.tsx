@@ -118,9 +118,8 @@ export default function ServicesPage() {
                 {section.packages.map((pkg, i) => (
                   <Card
                     key={i}
-                    className={`flex flex-col relative ${
-                      pkg.popular ? "border-secondary border-2 shadow-lg" : ""
-                    }`}
+                    className={`flex flex-col relative ${pkg.popular ? "border-secondary border-2 shadow-lg" : ""
+                      }`}
                   >
                     {pkg.popular && (
                       <div className="absolute top-0 right-0 bg-secondary text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl">

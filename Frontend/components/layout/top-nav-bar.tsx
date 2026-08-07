@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import { Menu, X, Calendar, ChevronDown, PhoneCall } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -55,14 +56,13 @@ export function TopNavBar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${
-          scrolled
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${scrolled
             ? "bg-white/95 backdrop-blur-xl border-b border-slate-200/90 py-3 shadow-md shadow-slate-900/5 text-slate-900"
             : "bg-white/90 backdrop-blur-md border-b border-slate-200/60 py-4 shadow-sm text-slate-900"
-        }`}
+          }`}
       >
         <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-2">
-          
+
           {/* Logo - Far Left */}
           <div className="flex-initial flex justify-start items-center">
             <Link
@@ -70,8 +70,14 @@ export function TopNavBar() {
               className="group flex items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-lg"
               aria-label="KB GARAGE Home"
             >
-              <div className="relative flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-secondary to-secondary-dark text-white font-heading font-black text-lg md:text-xl shadow-accent-glow transition-transform duration-300 group-hover:scale-105">
-                KB
+              <div className="relative w-10 h-10 md:w-11 md:h-11 shrink-0 transition-transform duration-300 group-hover:scale-105">
+                <Image
+                  src="/logo.svg"
+                  alt="KB GARAGE Logo"
+                  fill
+                  className="object-contain drop-shadow-[0_2px_8px_rgba(212,175,55,0.3)]"
+                  priority
+                />
               </div>
               <div className="flex flex-col">
                 <span className="font-heading text-lg md:text-2xl font-extrabold tracking-tight text-slate-900 flex items-center gap-1.5 leading-none">
@@ -99,9 +105,8 @@ export function TopNavBar() {
                 >
                   <Link
                     href={item.href}
-                    className={`relative inline-flex items-center gap-1 font-sans text-xs xl:text-sm uppercase tracking-wider font-semibold transition-colors duration-300 py-1 focus:outline-none focus-visible:ring-1 focus-visible:ring-secondary rounded ${
-                      isActive ? "text-secondary font-bold" : "text-slate-700 hover:text-slate-950"
-                    }`}
+                    className={`relative inline-flex items-center gap-1 font-sans text-xs xl:text-sm uppercase tracking-wider font-semibold transition-colors duration-300 py-1 focus:outline-none focus-visible:ring-1 focus-visible:ring-secondary rounded ${isActive ? "text-secondary font-bold" : "text-slate-700 hover:text-slate-950"
+                      }`}
                   >
                     <span>{item.label}</span>
                     {hasSubmenu && (
@@ -110,20 +115,18 @@ export function TopNavBar() {
 
                     {/* Hardware-accelerated left-to-right underline animation */}
                     <span
-                      className={`absolute bottom-0 left-0 h-[2px] w-full bg-secondary rounded-full transform origin-left transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${
-                        isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-                      }`}
+                      className={`absolute bottom-0 left-0 h-[2px] w-full bg-secondary rounded-full transform origin-left transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+                        }`}
                     />
                   </Link>
 
                   {/* Submenu Dropdown */}
                   {hasSubmenu && item.submenu && (
                     <div
-                      className={`absolute top-full left-1/2 -translate-x-1/2 pt-2 w-56 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${
-                        activeDropdown === item.label
+                      className={`absolute top-full left-1/2 -translate-x-1/2 pt-2 w-56 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${activeDropdown === item.label
                           ? "opacity-100 visible translate-y-0 scale-100"
                           : "opacity-0 invisible -translate-y-2 scale-95 pointer-events-none"
-                      }`}
+                        }`}
                     >
                       <div className="bg-white border border-slate-200/90 rounded-xl p-2 shadow-xl shadow-slate-900/10 flex flex-col space-y-0.5">
                         {item.submenu.map((sub) => (
@@ -153,9 +156,9 @@ export function TopNavBar() {
               <Button
                 variant="primary"
                 size="sm"
-                className="relative overflow-hidden group shadow-accent-glow hover:shadow-secondary/40 transition-all duration-300 px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded-xl bg-secondary hover:bg-secondary-dark text-white border border-secondary/30 flex items-center gap-2"
+                className="relative overflow-hidden group shadow-accent-glow hover:shadow-secondary/40 transition-all duration-300 px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded-xl bg-secondary hover:bg-secondary-dark text-on-secondary border border-secondary/30 flex items-center gap-2"
               >
-                <Calendar className="w-4 h-4 text-white transition-transform duration-300 group-hover:scale-110" />
+                <Calendar className="w-4 h-4 text-on-secondary transition-transform duration-300 group-hover:scale-110" />
                 <span>Book Now</span>
                 <span className="absolute inset-0 bg-white/20 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
               </Button>
@@ -176,9 +179,8 @@ export function TopNavBar() {
 
       {/* Mobile Full-screen / Slide-in Menu Drawer */}
       <div
-        className={`fixed inset-0 z-40 lg:hidden transition-all duration-300 ease-in-out ${
-          mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        }`}
+        className={`fixed inset-0 z-40 lg:hidden transition-all duration-300 ease-in-out ${mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
       >
         {/* Backdrop overlay */}
         <div
@@ -188,9 +190,8 @@ export function TopNavBar() {
 
         {/* Slide-in Menu Content */}
         <div
-          className={`absolute top-0 right-0 w-full sm:w-80 h-full bg-white border-l border-slate-200 shadow-2xl flex flex-col justify-between p-6 pt-24 overflow-y-auto transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${
-            mobileMenuOpen ? "translate-x-0" : "translate-x-full"
-          }`}
+          className={`absolute top-0 right-0 w-full sm:w-80 h-full bg-white border-l border-slate-200 shadow-2xl flex flex-col justify-between p-6 pt-24 overflow-y-auto transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${mobileMenuOpen ? "translate-x-0" : "translate-x-full"
+            }`}
         >
           <div className="space-y-6">
             <div className="border-b border-slate-100 pb-3">
@@ -207,18 +208,16 @@ export function TopNavBar() {
                     <Link
                       href={item.href}
                       onClick={() => setMobileMenuOpen(false)}
-                      className={`group flex items-center justify-between text-base font-semibold uppercase tracking-wider py-3 px-3 rounded-xl transition-all duration-200 ${
-                        isActive
+                      className={`group flex items-center justify-between text-base font-semibold uppercase tracking-wider py-3 px-3 rounded-xl transition-all duration-200 ${isActive
                           ? "text-secondary bg-secondary/5 border-l-2 border-secondary font-bold"
                           : "text-slate-800 hover:text-secondary hover:bg-slate-50"
-                      }`}
+                        }`}
                     >
                       <span className="relative inline-block">
                         {item.label}
                         <span
-                          className={`absolute bottom-0 left-0 h-[2px] w-full bg-secondary rounded-full transform origin-left transition-transform duration-300 ${
-                            isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-                          }`}
+                          className={`absolute bottom-0 left-0 h-[2px] w-full bg-secondary rounded-full transform origin-left transition-transform duration-300 ${isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+                            }`}
                         />
                       </span>
                     </Link>
@@ -252,7 +251,7 @@ export function TopNavBar() {
               <Button
                 variant="primary"
                 size="md"
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-secondary hover:bg-secondary-dark text-white font-semibold uppercase tracking-wider shadow-accent-glow"
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-secondary hover:bg-secondary-dark text-on-secondary font-semibold uppercase tracking-wider shadow-accent-glow"
               >
                 <Calendar className="w-5 h-5" />
                 <span>Book Service Now</span>

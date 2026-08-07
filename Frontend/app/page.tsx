@@ -13,7 +13,6 @@ import {
   Star,
   CheckCircle2,
   Calendar,
-  Award,
   Clock,
   Gauge,
 } from "lucide-react";
@@ -104,11 +103,6 @@ export default function HomePage() {
             transition={{ duration: 0.6 }}
             className="space-y-6 max-w-4xl mx-auto"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/20 border border-secondary/40 text-secondary text-xs font-semibold uppercase tracking-widest">
-              <Award className="w-4 h-4" />
-              <span>Precision Automotive Engineering</span>
-            </div>
-
             <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white drop-shadow-md leading-[1.1]">
               Precision Engineering for Your <span className="text-secondary">Passion.</span>
             </h1>
@@ -159,7 +153,6 @@ export default function HomePage() {
       <section className="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div>
-            <div className="text-secondary text-xs font-bold uppercase tracking-widest mb-2">Capabilities</div>
             <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-primary">
               Our Signature Services
             </h2>
@@ -195,7 +188,7 @@ export default function HomePage() {
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className="absolute top-3 right-3">
-                      <Badge variant={item.badge === "Popular" ? "secondary" : "neutral"}>
+                      <Badge variant="neutral">
                         {item.badge}
                       </Badge>
                     </div>
@@ -231,7 +224,6 @@ export default function HomePage() {
       <section className="bg-primary text-white py-section-gap px-margin-mobile md:px-margin-desktop">
         <div className="max-w-container-max mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
-            <Badge variant="secondary">Why KB Garage</Badge>
             <h2 className="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
               Engineered Standards. Zero Compromise.
             </h2>
@@ -296,8 +288,7 @@ export default function HomePage() {
       {/* Customer Reviews Section */}
       <section className="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <Badge variant="secondary">Verified Client Feedback</Badge>
-          <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-primary mt-3">
+          <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-primary">
             Trusted by Automotive Enthusiasts
           </h2>
           <p className="text-on-surface-variant text-sm sm:text-base mt-2">

@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Phone, Mail, MapPin, Clock, ShieldCheck, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -10,9 +11,18 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-slate-800">
           {/* Brand Col */}
           <div className="space-y-4">
-            <Link href="/" className="font-heading text-2xl font-extrabold tracking-tighter text-white flex items-center gap-2">
-              <span className="bg-secondary text-white px-2 py-0.5 rounded text-lg">KB</span>
-              <span>GARAGE</span>
+            <Link href="/" className="group flex items-center gap-3" aria-label="KB GARAGE Home">
+              <div className="relative w-10 h-10 md:w-11 md:h-11 shrink-0 transition-transform duration-300 group-hover:scale-105">
+                <Image
+                  src="/logo.svg"
+                  alt="KB GARAGE Logo"
+                  fill
+                  className="object-contain drop-shadow-[0_2px_8px_rgba(212,175,55,0.3)]"
+                />
+              </div>
+              <span className="font-heading text-2xl font-extrabold tracking-tight text-white leading-none">
+                KB <span className="text-secondary font-black tracking-widest">GARAGE</span>
+              </span>
             </Link>
             <p className="text-sm text-slate-400 leading-relaxed">
               Precision engineering, custom tuning, ceramic protection, and high-performance automotive maintenance tailored for enthusiasts.

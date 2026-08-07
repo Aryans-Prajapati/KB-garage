@@ -45,7 +45,7 @@ export function Stepper({ steps, currentStep, onStepClick }: StepperProps) {
                   isCompleted &&
                     "bg-tertiary border-tertiary text-white shadow-sm",
                   isActive &&
-                    "bg-secondary border-secondary text-white ring-4 ring-secondary/20 shadow-md",
+                    "bg-secondary border-secondary text-on-secondary ring-4 ring-secondary/20 shadow-md",
                   !isCompleted &&
                     !isActive &&
                     "bg-surface-container-lowest border-outline-variant text-on-surface-variant group-hover:border-secondary/50"

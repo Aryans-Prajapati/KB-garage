@@ -22,7 +22,7 @@
 The color architecture is built around **Midnight Blue** for authority and **Racing Red** for targeted high-visibility actions.
 
 ```
-       Midnight Blue (#0F172A)                Racing Red (#E11D48)             Professional Green (#10B981)
+       Midnight Blue (#0F172A)              Logo Metallic Gold (#D4AF37)       Professional Green (#10B981)
 ┌──────────────────────────────────┐ ┌──────────────────────────────────┐ ┌──────────────────────────────────┐
 │ Primary Brand / Headings / Nav   │ │ CTA Buttons / Active States      │ │ Status / Completed Steps         │
 └──────────────────────────────────┘ └──────────────────────────────────┘ └──────────────────────────────────┘
@@ -34,8 +34,8 @@ The color architecture is built around **Midnight Blue** for authority and **Rac
 | :--- | :--- | :--- |
 | `color-primary` | `#0f172a` | Main brand identity, primary text, navigation bar base |
 | `color-primary-container` | `#131b2e` | Dark surface containers, dark card backgrounds |
-| `color-secondary` | `#ba0035` / `#e11d48` | Racing Red CTA buttons, primary accents, active highlights |
-| `color-secondary-container` | `#e21e49` | Hover states for primary CTAs, high-priority notifications |
+| `color-secondary` | `#a37a1e` / `#d4af37` | Logo Metallic Gold CTA buttons, primary accents, active highlights |
+| `color-secondary-container` | `#f4e6a1` | Hover states for primary CTAs, high-priority notifications |
 | `color-tertiary` | `#10b981` / `#009668` | Success state, verified badges, completed stepper nodes |
 | `color-background` | `#f7f9fb` | Canvas base background |
 | `color-surface` | `#f8fafc` | Card and section background base |
@@ -113,10 +113,10 @@ Layouts strictly follow an **8px rhythmic grid system** for consistent vertical 
 ## 6. UI Component Patterns
 
 ### 1. Primary Button
-- **Background:** Racing Red (`#E11D48`)
-- **Text:** White (`#FFFFFF`), `label-bold` style
+- **Background:** Logo Metallic Gold (`#D4AF37`)
+- **Text:** Dark Slate (`#0F172A`), `label-bold` style
 - **Border Radius:** `0.25rem` (4px)
-- **Hover State:** Background darkens to `#BA0035`, scale `1.01`, `transition: all 200ms ease`
+- **Hover State:** Background darkens to `#A37A1E`, scale `1.01`, `transition: all 200ms ease`
 
 ### 2. Secondary Button
 - **Background:** Transparent / Surface (`#FFFFFF`)
@@ -130,13 +130,13 @@ Layouts strictly follow an **8px rhythmic grid system** for consistent vertical 
 
 ### 4. Input Fields
 - **Background:** Surface Low (`#F2F4F6`)
-- **Border:** Bottom-only `2px` stroke (`#C6C6CD`) resting, transforming into `2px` full Racing Red (`#E11D48`) ring on focus.
+- **Border:** Bottom-only `2px` stroke (`#C6C6CD`) resting, transforming into `2px` full Logo Metallic Gold (`#D4AF37`) ring on focus.
 - **Labels:** Uppercase `label-bold` floating/top-aligned.
 
 ### 5. Multi-step Progress Stepper
 - **Layout:** Horizontal progress bar with numbered nodes.
 - **Completed Node:** Filled Professional Green (`#10B981`) with check icon.
-- **Active Node:** Highlighted Racing Red (`#E11D48`) with outer ring indicator.
+- **Active Node:** Highlighted Logo Metallic Gold (`#D4AF37`) with outer ring indicator.
 - **Upcoming Node:** Muted Gray (`#ECEEF0`) with outline ring.
 
 ---
