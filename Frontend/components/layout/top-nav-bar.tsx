@@ -57,8 +57,8 @@ export function TopNavBar() {
     <>
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${scrolled
-            ? "bg-white/95 backdrop-blur-xl border-b border-slate-200/90 py-3 shadow-md shadow-slate-900/5 text-slate-900"
-            : "bg-white/90 backdrop-blur-md border-b border-slate-200/60 py-4 shadow-sm text-slate-900"
+          ? "bg-white/95 backdrop-blur-xl border-b border-slate-200/90 py-3 shadow-md shadow-slate-900/5 text-slate-900"
+          : "bg-white/90 backdrop-blur-md border-b border-slate-200/60 py-4 shadow-sm text-slate-900"
           }`}
       >
         <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-2">
@@ -70,7 +70,7 @@ export function TopNavBar() {
               className="group flex items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-lg"
               aria-label="KB GARAGE Home"
             >
-              <div className="relative w-10 h-10 md:w-11 md:h-11 shrink-0 transition-transform duration-300 group-hover:scale-105">
+              <div className="relative w-14 h-14 md:w-16 md:h-16 shrink-0 transition-transform duration-300 group-hover:scale-105">
                 <Image
                   src="/logo.svg"
                   alt="KB GARAGE Logo"
@@ -81,7 +81,7 @@ export function TopNavBar() {
               </div>
               <div className="flex flex-col">
                 <span className="font-heading text-lg md:text-2xl font-extrabold tracking-tight text-slate-900 flex items-center gap-1.5 leading-none">
-                  KB <span className="text-secondary font-black tracking-widest">GARAGE</span>
+                  KB <span className="gold-shine-text font-black tracking-widest">GARAGE</span>
                 </span>
               </div>
             </Link>
@@ -124,8 +124,8 @@ export function TopNavBar() {
                   {hasSubmenu && item.submenu && (
                     <div
                       className={`absolute top-full left-1/2 -translate-x-1/2 pt-2 w-56 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${activeDropdown === item.label
-                          ? "opacity-100 visible translate-y-0 scale-100"
-                          : "opacity-0 invisible -translate-y-2 scale-95 pointer-events-none"
+                        ? "opacity-100 visible translate-y-0 scale-100"
+                        : "opacity-0 invisible -translate-y-2 scale-95 pointer-events-none"
                         }`}
                     >
                       <div className="bg-white border border-slate-200/90 rounded-xl p-2 shadow-xl shadow-slate-900/10 flex flex-col space-y-0.5">
@@ -209,8 +209,8 @@ export function TopNavBar() {
                       href={item.href}
                       onClick={() => setMobileMenuOpen(false)}
                       className={`group flex items-center justify-between text-base font-semibold uppercase tracking-wider py-3 px-3 rounded-xl transition-all duration-200 ${isActive
-                          ? "text-secondary bg-secondary/5 border-l-2 border-secondary font-bold"
-                          : "text-slate-800 hover:text-secondary hover:bg-slate-50"
+                        ? "text-secondary bg-secondary/5 border-l-2 border-secondary font-bold"
+                        : "text-slate-800 hover:text-secondary hover:bg-slate-50"
                         }`}
                     >
                       <span className="relative inline-block">

@@ -11,51 +11,51 @@ import { Badge } from "@/components/ui/badge";
 const GALLERY_ITEMS = [
   {
     id: 1,
-    title: "Porsche 911 GT3 RS",
+    title: "Tata Nexon EV (Dark Edition)",
     category: "ceramic",
-    badge: "5-Year Ceramic",
-    desc: "Stage 2 paint restoration followed by dual-layer 9H nano ceramic matrix.",
-    image: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=1000&q=80",
+    badge: "5-Year Ceramic Shield",
+    desc: "Stage 2 paint restoration followed by dual-layer 9H nano ceramic shield for intense shine.",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Tata_Nexon_EV_in_Hyderabad_02.jpg/1280px-Tata_Nexon_EV_in_Hyderabad_02.jpg",
   },
   {
     id: 2,
-    title: "BMW M4 Competition",
-    category: "ppf",
-    badge: "Full PPF Armor",
-    desc: "Complete self-healing paint protection film installation on glossy finish.",
-    image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1000&q=80",
+    title: "Mahindra Thar 4x4 (Red Rage)",
+    category: "tuning",
+    badge: "Stage 1 ECU + Offroad Tuning",
+    desc: "Dyno-proven ECU remapping boosting low-end torque for mountain trails & highway cruising.",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Mahindra_Thar_SUV_in_%22Red_Rage%22_color_at_Ashiana_Brahmanda%2C_East_Singbhum_India_%28Ank_Kumar%2C_Infosys_limited%29_03.jpg/1280px-Mahindra_Thar_SUV_in_%22Red_Rage%22_color_at_Ashiana_Brahmanda%2C_East_Singbhum_India_%28Ank_Kumar%2C_Infosys_limited%29_03.jpg",
   },
   {
     id: 3,
-    title: "Audi RS6 Avant",
-    category: "tuning",
-    badge: "Stage 2 ECU + Downpipe",
-    desc: "Custom dyno-proven ECU remapping yielding +140 HP and 180 Nm torque boost.",
-    image: "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&w=1000&q=80",
+    title: "Hyundai Creta SX(O) 2024",
+    category: "ppf",
+    badge: "Full TPU PPF Armor",
+    desc: "Self-healing clear bra paint protection film against gravel, scratches, and Indian road debris.",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/2024_Hyundai_Creta_1.5_MPi_SX%28O%29_%28India%29_front_view.png/1280px-2024_Hyundai_Creta_1.5_MPi_SX%28O%29_%28India%29_front_view.png",
   },
   {
     id: 4,
-    title: "Mercedes-AMG GT R",
-    category: "ceramic",
-    badge: "Paint Correction",
-    desc: "Swirl mark elimination & mirror gloss finish with hydrophobic barrier.",
-    image: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1000&q=80",
+    title: "Toyota Fortuner Legender",
+    category: "detailing",
+    badge: "Full Interior + Engine Steam",
+    desc: "Precision leather conditioning, interior sanitization, and dust-free engine bay detailing.",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/2021_Toyota_Fortuner_2.8_VRZ_4x4_%28Malaysia%29_front_view.jpg/1280px-2021_Toyota_Fortuner_2.8_VRZ_4x4_%28Malaysia%29_front_view.jpg",
   },
   {
     id: 5,
-    title: "Lamborghini Huracán Evo",
-    category: "detailing",
-    badge: "Full Interior + Engine Steam",
-    desc: "Precision leather conditioning and dust-free engine compartment detailing.",
-    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1000&q=80",
+    title: "Volkswagen Virtus 1.5 GT (India)",
+    category: "tuning",
+    badge: "Stage 2 Remap & Exhaust",
+    desc: "Custom TCU gear shift speed mapping, performance downpipe, and crackle tune calibration.",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/2022_Volkswagen_Virtus_1.5_GT_%28India%29_front_view_01.png/1280px-2022_Volkswagen_Virtus_1.5_GT_%28India%29_front_view_01.png",
   },
   {
     id: 6,
-    title: "Ferrari F8 Tributo",
-    category: "ppf",
-    badge: "Front Bumper & Hood PPF",
-    desc: "High-impact rock chip protection film custom cut for Ferrari bodylines.",
-    image: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&w=1000&q=80",
+    title: "Maruti Suzuki Swift ZXi+",
+    category: "ceramic",
+    badge: "Paint Correction & Polish",
+    desc: "Complete scratch removal, high-gloss machine polishing, and hydrophobic paint sealant.",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Suzuki_Swift_%282024%29_hybrid_IMG_8820.jpg/1280px-Suzuki_Swift_%282024%29_hybrid_IMG_8820.jpg",
   },
 ];
 
@@ -95,11 +95,10 @@ export default function GalleryPage() {
             <button
               key={cat.id}
               onClick={() => setFilter(cat.id)}
-              className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded transition-all ${
-                filter === cat.id
+              className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded transition-all ${filter === cat.id
                   ? "bg-secondary text-white shadow-sm"
                   : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container"
-              }`}
+                }`}
             >
               {cat.label}
             </button>

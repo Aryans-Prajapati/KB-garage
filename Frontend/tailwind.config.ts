@@ -16,11 +16,12 @@ const config: Config = {
         "on-primary-container": "#7c839b",
         "on-primary-fixed": "#131b2e",
         "on-primary-fixed-variant": "#3f465c",
-        secondary: "#d4af37", // Logo Metallic Gold
-        "secondary-dark": "#a37a1e",
-        "secondary-container": "#f4e6a1",
+        secondary: "#FFD600", // Vibrant Shiny Gold Yellow
+        "secondary-dark": "#FFAB00",
+        "secondary-light": "#FFF59D",
+        "secondary-container": "#FFF9C4",
         "on-secondary": "#0f172a",
-        "on-secondary-fixed-variant": "#78560d",
+        "on-secondary-fixed-variant": "#78350F",
         tertiary: "#10b981", // Professional Green
         "tertiary-container": "#002113",
         "on-tertiary-container": "#009668",
@@ -65,7 +66,6 @@ const config: Config = {
       boxShadow: {
         tactile: "0 4px 6px -1px rgba(15, 23, 42, 0.05)",
         "tactile-hover": "0 10px 25px -5px rgba(15, 23, 42, 0.12)",
-        "accent-glow": "0 8px 20px rgba(212, 175, 55, 0.35)",
       },
     },
   },

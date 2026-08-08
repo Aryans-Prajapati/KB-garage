@@ -43,12 +43,12 @@ export function Stepper({ steps, currentStep, onStepClick }: StepperProps) {
                 className={cn(
                   "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2",
                   isCompleted &&
-                    "bg-tertiary border-tertiary text-white shadow-sm",
+                  "bg-tertiary border-tertiary text-white shadow-sm",
                   isActive &&
-                    "bg-secondary border-secondary text-on-secondary ring-4 ring-secondary/20 shadow-md",
+                  "bg-secondary border-secondary text-on-secondary ring-4 ring-secondary/20 shadow-md",
                   !isCompleted &&
-                    !isActive &&
-                    "bg-surface-container-lowest border-outline-variant text-on-surface-variant group-hover:border-secondary/50"
+                  !isActive &&
+                  "bg-surface-container-lowest border-outline-variant text-on-surface-variant group-hover:border-secondary/50"
                 )}
               >
                 {isCompleted ? <Check className="w-5 h-5" /> : step.id}

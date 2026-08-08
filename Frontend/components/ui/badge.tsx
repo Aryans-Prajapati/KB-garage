@@ -12,7 +12,7 @@ export function Badge({ className, variant = "neutral", children, ...props }: Ba
     error: "bg-error-container text-error border-error/20",
     info: "bg-sky-500/10 text-sky-600 border-sky-500/20",
     neutral: "bg-surface-container-high text-on-surface-variant border-outline-variant",
-    secondary: "bg-secondary/10 text-secondary border-secondary/20",
+    secondary: "gold-badge-shine",
   };
 
   return (

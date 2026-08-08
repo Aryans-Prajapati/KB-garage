@@ -8,24 +8,24 @@ import { Badge } from "@/components/ui/badge";
 
 const TEAM = [
   {
-    name: "Viktor Vance",
+    name: "Vikramaditya Sharma",
     role: "Founder & Master Dyno Calibrator",
     exp: "18+ Years Experience",
-    bio: "Ex-factory Porsche Motorsport technician specializing in custom ECU remaps and powertrain telemetry.",
+    bio: "Motorsport powertrain specialist specializing in custom ECU remaps, Indian fuel calibration, and dyno tuning.",
     image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80",
   },
   {
-    name: "Elena Rostova",
+    name: "Elena D'Souza",
     role: "Head of Detailing & Ceramic Coatings",
     exp: "12+ Years Experience",
-    bio: "Certified International Detailing Association (IDA) master technician specializing in multi-stage paint correction.",
+    bio: "Certified International Detailing Association (IDA) master technician specializing in 9H ceramic matrix and TPU PPF.",
     image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80",
   },
   {
-    name: "Marcus Thorne",
+    name: "Rajesh Kapoor",
     role: "Lead Mechanical Engineer",
     exp: "15+ Years Experience",
-    bio: "Specialist in twin-turbo induction setups, custom titanium exhausts, and track safety prep.",
+    bio: "Specialist in twin-scroll turbo setups, custom exhaust fabrication, and suspension optimization for Indian roads.",
     image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
   },
 ];

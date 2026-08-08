@@ -19,38 +19,108 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Stepper } from "@/components/ui/stepper";
+import { createBooking } from "@/lib/api";
 
 const STEPS = [
-  { id: 1, title: "Vehicle Info" },
+  { id: 1, title: "Vehicle Selection" },
   { id: 2, title: "Service" },
   { id: 3, title: "Schedule" },
   { id: 4, title: "Confirm" },
 ];
 
 const TIME_SLOTS = [
-  "08:30 AM",
-  "10:00 AM",
-  "11:30 AM",
-  "01:30 PM",
-  "03:00 PM",
-  "04:30 PM",
+  "09:00 AM",
+  "10:30 AM",
+  "12:00 PM",
+  "02:00 PM",
+  "03:30 PM",
+  "05:00 PM",
+];
+
+// Indian Car Data for Dropdown Menus
+const INDIAN_CAR_BRANDS: Record<string, string[]> = {
+  "Tata Motors": [
+    "Nexon",
+    "Harrier",
+    "Safari",
+    "Punch",
+    "Altroz",
+    "Tiago",
+    "Tigor",
+    "Curvv",
+    "Sierra EV",
+  ],
+  "Mahindra & Mahindra": [
+    "Thar 4x4",
+    "Thar Roxx",
+    "XUV700",
+    "Scorpio-N",
+    "Scorpio Classic",
+    "XUV3XO",
+    "Bolero Neo",
+  ],
+  "Hyundai India": [
+    "Creta",
+    "Venue",
+    "Verna",
+    "i20 N Line",
+    "Tucson",
+    "Alcazar",
+    "Exter",
+    "Aura",
+  ],
+  "Maruti Suzuki": [
+    "Swift",
+    "Brezza",
+    "Baleno",
+    "Grand Vitara",
+    "Jimny 4x4",
+    "Fronx",
+    "Ertiga",
+    "Dzire",
+    "XL6",
+  ],
+  "Toyota Bharat": [
+    "Fortuner",
+    "Fortuner Legender",
+    "Innova Crysta",
+    "Innova Hycross",
+    "Urban Cruiser Hyryder",
+    "Glanza",
+    "Hilux",
+  ],
+  "Honda Cars India": ["City", "City e:HEV", "Elevate", "Amaze"],
+  "Kia India": ["Seltos", "Sonet", "Carens", "EV6"],
+  "Skoda Auto India": ["Slavia", "Kushaq", "Kodiaq", "Superb"],
+  "Volkswagen India": ["Virtus GT", "Taigun", "Tiguan"],
+  "MG Motor India": ["Hector", "Astor", "ZS EV", "Comet EV", "Windsor EV"],
+  "BMW India": ["3 Series Gran Limousine", "5 Series", "M3 Competition", "M4", "X1", "X5"],
+  "Mercedes-Benz India": ["C-Class", "E-Class", "GLC", "GLE", "G 63 AMG"],
+  "Audi India": ["A4", "A6", "Q3", "Q5", "Q7", "RS e-tron GT"],
+  "Other / Custom": ["Custom Vehicle"],
+};
+
+const SERVICES_LIST = [
+  { id: "ceramic", title: "9H Ceramic Coating (3-5 Year Shield)", price: "₹14,999" },
+  { id: "ppf", title: "Full TPU Paint Protection Film (PPF)", price: "₹49,999" },
+  { id: "tuning", title: "Stage 1 / Stage 2 ECU Performance Tuning", price: "₹19,999" },
+  { id: "maintenance", title: "Comprehensive General Maintenance & Diagnostics", price: "₹2,499" },
+  { id: "detailing", title: "Deep Interior Steam & Leather Care", price: "₹5,999" },
 ];
 
 export default function BookingPage() {
   const [currentStep, setCurrentStep] = useState(1);
 
-  // Form State
-  const [vehicle, setVehicle] = useState({
-    make: "",
-    model: "",
-    year: "2023",
-    mileage: "",
-    plate: "",
-  });
+  // Vehicle State - WITHOUT Mileage option
+  const [selectedBrand, setSelectedBrand] = useState("Tata Motors");
+  const [selectedModel, setSelectedModel] = useState("Harrier");
+  const [customModel, setCustomModel] = useState("");
+  const [year, setYear] = useState("2024");
+  const [plate, setPlate] = useState("");
 
-  const [selectedService, setSelectedService] = useState("ceramic");
-  const [selectedDate, setSelectedDate] = useState("2026-08-10");
-  const [selectedTime, setSelectedTime] = useState("10:00 AM");
+  const [selectedService, setSelectedService] = useState(SERVICES_LIST[0]);
+  const [selectedDate, setSelectedDate] = useState("2026-08-12");
+  const [selectedTime, setSelectedTime] = useState("10:30 AM");
 
   const [contact, setContact] = useState({
     name: "",
@@ -60,11 +130,37 @@ export default function BookingPage() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [bookingRef, setBookingRef] = useState("");
 
-  const handleNext = () => {
+  const handleBrandChange = (brand: string) => {
+    setSelectedBrand(brand);
+    const models = INDIAN_CAR_BRANDS[brand] || [];
+    setSelectedModel(models[0] || "Custom Vehicle");
+  };
+
+  const handleNext = async () => {
     if (currentStep < 4) {
       setCurrentStep((prev) => prev + 1);
     } else {
+      setLoading(true);
+      const finalModel = selectedBrand === "Other / Custom" && customModel ? customModel : selectedModel;
+      const res = await createBooking({
+        make: selectedBrand,
+        model: finalModel,
+        year: year,
+        service_id: selectedService.id,
+        service_name: selectedService.title,
+        price_inr: selectedService.price,
+        date: selectedDate,
+        time_slot: selectedTime,
+        client_name: contact.name || "Client",
+        client_email: contact.email || "client@email.com",
+        client_phone: contact.phone || "+91 98765 43210",
+        notes: contact.notes,
+      });
+      setBookingRef(res.reference_id || `KB-${Math.floor(100000 + Math.random() * 900000)}`);
+      setLoading(false);
       setSubmitted(true);
     }
   };
@@ -76,9 +172,10 @@ export default function BookingPage() {
   };
 
   if (submitted) {
+    const finalModelName = selectedBrand === "Other / Custom" && customModel ? customModel : selectedModel;
     return (
       <div className="py-20 max-w-xl mx-auto px-margin-mobile text-center space-y-6">
-        <div className="w-20 h-20 rounded-full bg-tertiary/10 text-tertiary mx-auto flex items-center justify-center border-2 border-tertiary">
+        <div className="w-20 h-20 rounded-full bg-emerald-500/10 text-emerald-500 mx-auto flex items-center justify-center border-2 border-emerald-500">
           <CheckCircle2 className="w-10 h-10" />
         </div>
         <Badge variant="success">Booking Confirmed</Badge>
@@ -86,22 +183,26 @@ export default function BookingPage() {
           Appointment Scheduled!
         </h1>
         <p className="text-on-surface-variant text-sm leading-relaxed">
-          Thank you, <span className="font-bold text-primary">{contact.name || "Valued Client"}</span>. Your service reservation for your <span className="font-bold text-primary">{vehicle.year} {vehicle.make} {vehicle.model}</span> on <span className="font-bold text-secondary">{selectedDate} at {selectedTime}</span> has been confirmed.
+          Thank you, <span className="font-bold text-primary">{contact.name || "Valued Client"}</span>. Your service reservation for your <span className="font-bold text-primary">{year} {selectedBrand} {finalModelName}</span> on <span className="font-bold text-secondary">{selectedDate} at {selectedTime}</span> has been saved in our system.
         </p>
 
-        <Card className="p-6 text-left space-y-3 bg-surface-container-low">
-          <div className="text-xs font-bold uppercase text-slate-400">Reservation Summary</div>
-          <div className="flex justify-between text-sm py-1 border-b border-surface-container">
+        <Card className="p-6 text-left space-y-3 bg-surface-container-low border border-slate-200 shadow-sm">
+          <div className="text-xs font-bold uppercase text-slate-500 tracking-wider">Reservation Summary</div>
+          <div className="flex justify-between text-sm py-1.5 border-b border-surface-container">
             <span className="text-on-surface-variant">Reference ID:</span>
-            <span className="font-mono font-bold text-primary">KB-{Math.floor(100000 + Math.random() * 900000)}</span>
+            <span className="font-mono font-bold text-primary">{bookingRef}</span>
           </div>
-          <div className="flex justify-between text-sm py-1 border-b border-surface-container">
+          <div className="flex justify-between text-sm py-1.5 border-b border-surface-container">
+            <span className="text-on-surface-variant">Service:</span>
+            <span className="font-semibold text-secondary">{selectedService.title} ({selectedService.price})</span>
+          </div>
+          <div className="flex justify-between text-sm py-1.5 border-b border-surface-container">
             <span className="text-on-surface-variant">Location:</span>
-            <span className="font-medium text-primary">104 Precision Drive, Apex Motors Complex</span>
+            <span className="font-medium text-primary">KB Garage, WE Highway, Andheri East, Mumbai</span>
           </div>
-          <div className="flex justify-between text-sm py-1 border-b border-surface-container">
-            <span className="text-on-surface-variant">Contact Email:</span>
-            <span className="font-medium text-primary">{contact.email || "client@email.com"}</span>
+          <div className="flex justify-between text-sm py-1.5 border-b border-surface-container">
+            <span className="text-on-surface-variant">Contact Phone:</span>
+            <span className="font-medium text-primary">{contact.phone || "+91 98765 43210"}</span>
           </div>
         </Card>
 
@@ -118,12 +219,12 @@ export default function BookingPage() {
     <div className="py-12 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop space-y-10">
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto space-y-2">
-        <Badge variant="secondary">Online Reservation</Badge>
+        <Badge variant="secondary">Indian Garage Reservation</Badge>
         <h1 className="font-heading text-3xl sm:text-4xl font-extrabold text-primary">
-          Book Your KB Garage Service
+          Book Your KB Garage Appointment
         </h1>
         <p className="text-on-surface-variant text-sm sm:text-base">
-          Reserve your precision service slot in 4 simple steps.
+          Select your Indian car model, chosen service package, and preferred time slot.
         </p>
       </div>
 
@@ -133,9 +234,9 @@ export default function BookingPage() {
       </div>
 
       {/* Step Content Container */}
-      <Card className="max-w-3xl mx-auto p-6 md:p-10 shadow-md">
+      <Card className="max-w-3xl mx-auto p-6 md:p-10 shadow-md border border-slate-200">
         <AnimatePresence mode="wait">
-          {/* Step 1: Vehicle Info */}
+          {/* Step 1: Indian Car Dropdown Selection (No Mileage Option) */}
           {currentStep === 1 && (
             <motion.div
               key="step1"
@@ -146,39 +247,66 @@ export default function BookingPage() {
               className="space-y-6"
             >
               <div className="flex items-center gap-2 font-heading text-xl font-bold text-primary border-b border-surface-container pb-3">
-                <Car className="w-5 h-5 text-secondary" />
-                <h2>Step 1: Vehicle Specifications</h2>
+                <Car className="w-6 h-6 text-secondary" />
+                <h2>Step 1: Indian Vehicle Details</h2>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {/* Brand Dropdown Menu */}
                 <div>
-                  <label className="block text-xs font-bold uppercase text-on-surface-variant mb-1">Make / Brand *</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Porsche, BMW, Audi"
-                    value={vehicle.make}
-                    onChange={(e) => setVehicle({ ...vehicle, make: e.target.value })}
-                    className="w-full px-4 py-3 bg-surface-container-low border-b-2 border-outline-variant focus:border-secondary focus:outline-none rounded-sm text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase text-on-surface-variant mb-1">Model *</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 911 GT3, M4, RS6"
-                    value={vehicle.model}
-                    onChange={(e) => setVehicle({ ...vehicle, model: e.target.value })}
-                    className="w-full px-4 py-3 bg-surface-container-low border-b-2 border-outline-variant focus:border-secondary focus:outline-none rounded-sm text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase text-on-surface-variant mb-1">Model Year</label>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                    Car Brand / Manufacturer *
+                  </label>
                   <select
-                    value={vehicle.year}
-                    onChange={(e) => setVehicle({ ...vehicle, year: e.target.value })}
-                    className="w-full px-4 py-3 bg-surface-container-low border-b-2 border-outline-variant focus:border-secondary focus:outline-none rounded-sm text-sm"
+                    value={selectedBrand}
+                    onChange={(e) => handleBrandChange(e.target.value)}
+                    className="w-full px-4 py-3 bg-surface-container-low border-2 border-slate-300 focus:border-secondary focus:outline-none rounded-lg text-sm font-semibold text-slate-900 shadow-sm"
+                  >
+                    {Object.keys(INDIAN_CAR_BRANDS).map((b) => (
+                      <option key={b} value={b}>
+                        {b}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Model Dropdown Menu */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                    Car Name / Model Dropdown *
+                  </label>
+                  {selectedBrand === "Other / Custom" ? (
+                    <input
+                      type="text"
+                      placeholder="e.g. Vintage Premier Padmini / Imported"
+                      value={customModel}
+                      onChange={(e) => setCustomModel(e.target.value)}
+                      className="w-full px-4 py-3 bg-surface-container-low border-2 border-slate-300 focus:border-secondary focus:outline-none rounded-lg text-sm font-medium"
+                    />
+                  ) : (
+                    <select
+                      value={selectedModel}
+                      onChange={(e) => setSelectedModel(e.target.value)}
+                      className="w-full px-4 py-3 bg-surface-container-low border-2 border-slate-300 focus:border-secondary focus:outline-none rounded-lg text-sm font-semibold text-slate-900 shadow-sm"
+                    >
+                      {(INDIAN_CAR_BRANDS[selectedBrand] || []).map((m) => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
+                {/* Model Year */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                    Model Year
+                  </label>
+                  <select
+                    value={year}
+                    onChange={(e) => setYear(e.target.value)}
+                    className="w-full px-4 py-3 bg-surface-container-low border-2 border-slate-300 focus:border-secondary focus:outline-none rounded-lg text-sm font-medium text-slate-900"
                   >
                     {Array.from({ length: 25 }, (_, i) => 2026 - i).map((yr) => (
                       <option key={yr} value={yr}>
@@ -188,21 +316,31 @@ export default function BookingPage() {
                   </select>
                 </div>
 
+                {/* Vehicle Plate / Registration (Optional) */}
                 <div>
-                  <label className="block text-xs font-bold uppercase text-on-surface-variant mb-1">Mileage (Approx)</label>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                    Registration No. (Optional)
+                  </label>
                   <input
                     type="text"
-                    placeholder="e.g. 12,500 mi"
-                    value={vehicle.mileage}
-                    onChange={(e) => setVehicle({ ...vehicle, mileage: e.target.value })}
-                    className="w-full px-4 py-3 bg-surface-container-low border-b-2 border-outline-variant focus:border-secondary focus:outline-none rounded-sm text-sm"
+                    placeholder="e.g. MH 02 CZ 4920"
+                    value={plate}
+                    onChange={(e) => setPlate(e.target.value)}
+                    className="w-full px-4 py-3 bg-surface-container-low border-2 border-slate-300 focus:border-secondary focus:outline-none rounded-lg text-sm font-medium uppercase"
                   />
                 </div>
+              </div>
+
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-xs text-amber-900 flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-amber-600 shrink-0" />
+                <span>
+                  All services are optimized for Indian weather, high dust levels, and road conditions.
+                </span>
               </div>
             </motion.div>
           )}
 
-          {/* Step 2: Service Selection */}
+          {/* Step 2: Service Selection in INR */}
           {currentStep === 2 && (
             <motion.div
               key="step2"
@@ -213,28 +351,27 @@ export default function BookingPage() {
               className="space-y-6"
             >
               <div className="flex items-center gap-2 font-heading text-xl font-bold text-primary border-b border-surface-container pb-3">
-                <Wrench className="w-5 h-5 text-secondary" />
-                <h2>Step 2: Select Service Discipline</h2>
+                <Wrench className="w-6 h-6 text-secondary" />
+                <h2>Step 2: Select Service Discipline (INR Pricing)</h2>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {[
-                  { id: "ceramic", title: "Ceramic Coating (3-5 Year)", price: "From $599" },
-                  { id: "ppf", title: "Full PPF Paint Armor", price: "From $1,899" },
-                  { id: "tuning", title: "Stage 1/2 ECU Tuning", price: "From $750" },
-                  { id: "maintenance", title: "Comprehensive Service", price: "From $150" },
-                ].map((s) => (
+                {SERVICES_LIST.map((s) => (
                   <div
                     key={s.id}
-                    onClick={() => setSelectedService(s.id)}
-                    className={`p-4 rounded border-2 cursor-pointer transition-all ${
-                      selectedService === s.id
-                        ? "border-secondary bg-secondary/5 ring-2 ring-secondary/20"
-                        : "border-outline-variant bg-surface-container-lowest hover:border-slate-400"
-                    }`}
+                    onClick={() => setSelectedService(s)}
+                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedService.id === s.id
+                        ? "border-secondary bg-secondary/5 ring-2 ring-secondary/20 shadow-md"
+                        : "border-slate-200 bg-white hover:border-slate-400"
+                      }`}
                   >
                     <div className="font-heading font-bold text-primary text-base">{s.title}</div>
-                    <div className="text-xs text-secondary font-bold uppercase tracking-wider mt-1">{s.price}</div>
+                    <div className="text-sm text-secondary font-black tracking-wider mt-2 flex items-center justify-between">
+                      <span>{s.price}</span>
+                      {selectedService.id === s.id && (
+                        <span className="text-xs bg-secondary text-white px-2 py-0.5 rounded font-bold">Selected</span>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -252,34 +389,37 @@ export default function BookingPage() {
               className="space-y-6"
             >
               <div className="flex items-center gap-2 font-heading text-xl font-bold text-primary border-b border-surface-container pb-3">
-                <CalendarIcon className="w-5 h-5 text-secondary" />
-                <h2>Step 3: Appointment Date & Time</h2>
+                <CalendarIcon className="w-6 h-6 text-secondary" />
+                <h2>Step 3: Appointment Date & Time Slot</h2>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-bold uppercase text-on-surface-variant mb-2">Select Date</label>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                    Preferred Date
+                  </label>
                   <input
                     type="date"
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
-                    className="w-full px-4 py-3 bg-surface-container-low border-b-2 border-outline-variant focus:border-secondary focus:outline-none rounded-sm text-sm"
+                    className="w-full px-4 py-3 bg-surface-container-low border-2 border-slate-300 focus:border-secondary focus:outline-none rounded-lg text-sm font-semibold"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase text-on-surface-variant mb-2">Available Time Slots</label>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                    Available Time Slots
+                  </label>
                   <div className="grid grid-cols-2 gap-2">
                     {TIME_SLOTS.map((t) => (
                       <button
                         key={t}
                         type="button"
                         onClick={() => setSelectedTime(t)}
-                        className={`py-2 px-3 text-xs font-bold rounded border transition-all ${
-                          selectedTime === t
-                            ? "bg-secondary text-white border-secondary shadow-sm"
-                            : "bg-surface-container-low text-on-surface border-outline-variant hover:border-secondary"
-                        }`}
+                        className={`py-2.5 px-3 text-xs font-bold rounded-lg border transition-all ${selectedTime === t
+                            ? "bg-secondary text-white border-secondary shadow-md scale-[1.02]"
+                            : "bg-surface-container-low text-slate-800 border-slate-300 hover:border-secondary"
+                          }`}
                       >
                         {t}
                       </button>
@@ -301,50 +441,67 @@ export default function BookingPage() {
               className="space-y-6"
             >
               <div className="flex items-center gap-2 font-heading text-xl font-bold text-primary border-b border-surface-container pb-3">
-                <User className="w-5 h-5 text-secondary" />
-                <h2>Step 4: Contact & Final Review</h2>
+                <User className="w-6 h-6 text-secondary" />
+                <h2>Step 4: Contact Information & Review</h2>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase text-on-surface-variant mb-1">Full Name *</label>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Full Name *</label>
                   <input
                     type="text"
-                    placeholder="John Doe"
+                    placeholder="e.g. Rajesh Sharma"
                     value={contact.name}
                     onChange={(e) => setContact({ ...contact, name: e.target.value })}
-                    className="w-full px-4 py-3 bg-surface-container-low border-b-2 border-outline-variant focus:border-secondary focus:outline-none rounded-sm text-sm"
+                    className="w-full px-4 py-3 bg-surface-container-low border-2 border-slate-300 focus:border-secondary focus:outline-none rounded-lg text-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase text-on-surface-variant mb-1">Phone Number *</label>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Phone Number (+91) *</label>
                   <input
                     type="tel"
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="+91 98765 43210"
                     value={contact.phone}
                     onChange={(e) => setContact({ ...contact, phone: e.target.value })}
-                    className="w-full px-4 py-3 bg-surface-container-low border-b-2 border-outline-variant focus:border-secondary focus:outline-none rounded-sm text-sm"
+                    className="w-full px-4 py-3 bg-surface-container-low border-2 border-slate-300 focus:border-secondary focus:outline-none rounded-lg text-sm"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-on-surface-variant mb-1">Email Address *</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Email Address *</label>
                 <input
                   type="email"
-                  placeholder="john@example.com"
+                  placeholder="rajesh.sharma@example.com"
                   value={contact.email}
                   onChange={(e) => setContact({ ...contact, email: e.target.value })}
-                  className="w-full px-4 py-3 bg-surface-container-low border-b-2 border-outline-variant focus:border-secondary focus:outline-none rounded-sm text-sm"
+                  className="w-full px-4 py-3 bg-surface-container-low border-2 border-slate-300 focus:border-secondary focus:outline-none rounded-lg text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Special Requirements / Notes</label>
+                <textarea
+                  rows={2}
+                  placeholder="Any specific scratch, custom requirement, or pick-up instruction..."
+                  value={contact.notes}
+                  onChange={(e) => setContact({ ...contact, notes: e.target.value })}
+                  className="w-full px-4 py-2.5 bg-surface-container-low border-2 border-slate-300 focus:border-secondary focus:outline-none rounded-lg text-sm"
                 />
               </div>
 
               {/* Summary Box */}
-              <div className="bg-primary/5 p-4 rounded border border-primary/10 space-y-2">
-                <div className="text-xs font-bold uppercase text-primary">Summary Confirmation:</div>
-                <div className="text-xs text-on-surface-variant">
-                  Vehicle: <span className="font-semibold text-primary">{vehicle.year} {vehicle.make || "Custom Vehicle"} {vehicle.model}</span> | Date: <span className="font-semibold text-secondary">{selectedDate} @ {selectedTime}</span>
+              <div className="bg-slate-900 text-white p-5 rounded-xl space-y-2 border border-slate-800 shadow-md">
+                <div className="text-xs font-bold uppercase tracking-widest text-secondary">Summary Confirmation</div>
+                <div className="text-sm font-medium">
+                  Vehicle: <span className="font-bold text-white">{year} {selectedBrand} {selectedBrand === "Other / Custom" ? customModel || "Custom" : selectedModel}</span>
+                </div>
+                <div className="text-sm font-medium">
+                  Selected Service: <span className="font-bold text-secondary">{selectedService.title} ({selectedService.price})</span>
+                </div>
+                <div className="text-xs text-slate-400">
+                  Appointment: <span className="text-white font-semibold">{selectedDate} @ {selectedTime}</span>
                 </div>
               </div>
             </motion.div>
@@ -357,15 +514,21 @@ export default function BookingPage() {
             variant="outline"
             size="md"
             onClick={handleBack}
-            disabled={currentStep === 1}
+            disabled={currentStep === 1 || loading}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back</span>
           </Button>
 
-          <Button variant="primary" size="md" onClick={handleNext} className="flex items-center gap-2">
-            <span>{currentStep === 4 ? "Confirm Appointment" : "Continue"}</span>
+          <Button
+            variant="primary"
+            size="md"
+            onClick={handleNext}
+            disabled={loading}
+            className="flex items-center gap-2 bg-secondary hover:bg-secondary-dark text-on-secondary px-6 font-bold uppercase tracking-wider"
+          >
+            <span>{loading ? "Processing..." : currentStep === 4 ? "Confirm & Book Slot" : "Continue"}</span>
             <ArrowRight className="w-4 h-4" />
           </Button>
         </div>

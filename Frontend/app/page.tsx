@@ -24,27 +24,27 @@ const SERVICES = [
   {
     id: "general",
     title: "General Maintenance",
-    desc: "Comprehensive diagnostic & routine maintenance schedules to keep your vehicle performing at its peak.",
-    price: "$150",
-    image: "https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?auto=format&fit=crop&w=800&q=80",
+    desc: "Comprehensive diagnostic & routine maintenance schedules for Indian driving conditions.",
+    price: "₹2,499",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Suzuki_Swift_%282024%29_hybrid_IMG_8820.jpg/1280px-Suzuki_Swift_%282024%29_hybrid_IMG_8820.jpg",
     icon: Wrench,
     badge: "Essential",
   },
   {
     id: "ceramic",
     title: "Ceramic Coating & PPF",
-    desc: "Ultra-hydrophobic paint protection film & 9H ceramic shield for mirror-like brilliance and scratch immunity.",
-    price: "$599",
-    image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?auto=format&fit=crop&w=800&q=80",
+    desc: "Ultra-hydrophobic paint protection film & 9H ceramic shield for monsoon & UV immunity.",
+    price: "₹14,999",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Tata_Nexon_EV_in_Hyderabad_02.jpg/1280px-Tata_Nexon_EV_in_Hyderabad_02.jpg",
     icon: Sparkles,
     badge: "Popular",
   },
   {
     id: "tuning",
     title: "Performance ECU Tuning",
-    desc: "Dyno-proven software optimization, custom exhaust upgrades, and horsepower enhancements for high-rev engines.",
-    price: "$750",
-    image: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=800&q=80",
+    desc: "Dyno-proven software optimization tailored for Indian fuel specs, torque boost & responsive acceleration.",
+    price: "₹19,999",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Mahindra_Thar_SUV_in_%22Red_Rage%22_color_at_Ashiana_Brahmanda%2C_East_Singbhum_India_%28Ank_Kumar%2C_Infosys_limited%29_03.jpg/1280px-Mahindra_Thar_SUV_in_%22Red_Rage%22_color_at_Ashiana_Brahmanda%2C_East_Singbhum_India_%28Ank_Kumar%2C_Infosys_limited%29_03.jpg",
     icon: Zap,
     badge: "High Performance",
   },
@@ -52,8 +52,8 @@ const SERVICES = [
     id: "detail",
     title: "Full Stage Detailing",
     desc: "Multi-stage paint correction, interior leather restoration, and precision engine bay steam cleaning.",
-    price: "$350",
-    image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&w=800&q=80",
+    price: "₹5,999",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/2024_Hyundai_Creta_1.5_MPi_SX%28O%29_%28India%29_front_view.png/1280px-2024_Hyundai_Creta_1.5_MPi_SX%28O%29_%28India%29_front_view.png",
     icon: ShieldCheck,
     badge: "Signature",
   },
@@ -61,21 +61,21 @@ const SERVICES = [
 
 const REVIEWS = [
   {
-    name: "Marcus Vance",
-    car: "Porsche 911 GT3 RS",
-    text: "KB Garage treated my GT3 RS with surgical precision. The 9H ceramic coating and custom exhaust tuning completely transformed the car. Unrivaled craftsmanship!",
+    name: "Rajesh Sharma",
+    car: "Tata Safari Dark Edition",
+    text: "KB Garage treated my Safari with surgical precision. The 9H ceramic coating completely transformed the deep black finish. Unrivaled Indian craftsmanship!",
     rating: 5,
   },
   {
-    name: "Elena Rostova",
-    car: "BMW M4 Competition",
-    text: "The ECU remap and PPF protection were done flawlessly. Transparent pricing, state-of-the-art facility, and technicians who actually care.",
+    name: "Ananya Verma",
+    car: "Mahindra XUV700 AX7L",
+    text: "The Stage 1 ECU remap and PPF armor were done flawlessly. Mid-range torque is fantastic and online booking with INR pricing was seamless.",
     rating: 5,
   },
   {
-    name: "David Sterling",
-    car: "Audi RS6 Avant",
-    text: "Fast turnarounds, incredible attention to detail, and seamless online booking. KB Garage is the only garage I trust with my vehicle.",
+    name: "Rohan Kapoor",
+    car: "Hyundai Creta Turbo",
+    text: "Fast turnarounds, incredible attention to detail, and top-notch customer support. KB Garage is the best garage in India for automotive enthusiasts.",
     rating: 5,
   },
 ];
@@ -104,7 +104,7 @@ export default function HomePage() {
             className="space-y-6 max-w-4xl mx-auto"
           >
             <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white drop-shadow-md leading-[1.1]">
-              Precision Engineering for Your <span className="text-secondary">Passion.</span>
+              Precision Engineering for Your <span className="gold-shine-text">Passion.</span>
             </h1>
 
             <p className="font-body text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed drop-shadow">
@@ -129,7 +129,7 @@ export default function HomePage() {
             {/* Quick Stats Banner */}
             <div className="pt-12 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto border-t border-slate-800/80">
               <div>
-                <div className="text-2xl sm:text-3xl font-extrabold font-heading text-secondary">15+</div>
+                <div className="text-2xl sm:text-3xl font-extrabold font-heading gold-shine-text">15+</div>
                 <div className="text-xs uppercase text-slate-400 font-semibold tracking-wider">Years Excellence</div>
               </div>
               <div>
@@ -141,7 +141,7 @@ export default function HomePage() {
                 <div className="text-xs uppercase text-slate-400 font-semibold tracking-wider">Satisfaction Rate</div>
               </div>
               <div>
-                <div className="text-2xl sm:text-3xl font-extrabold font-heading text-secondary">4.9 ★</div>
+                <div className="text-2xl sm:text-3xl font-extrabold font-heading gold-shine-text">4.9 ★</div>
                 <div className="text-xs uppercase text-slate-400 font-semibold tracking-wider">Client Rating</div>
               </div>
             </div>

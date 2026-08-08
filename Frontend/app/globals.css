@@ -17,7 +17,12 @@
     @apply bg-background text-on-surface antialiased overflow-x-hidden selection:bg-secondary selection:text-on-secondary;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-montserrat), sans-serif;
   }
 }
@@ -29,6 +34,44 @@
 
 .dark-section-gradient {
   background: linear-gradient(135deg, #0f172a 0%, #131b2e 100%);
+}
+
+/* Exact Official Logo SVG Metallic Gold Gradient ONLY for Logo Brand Text "GARAGE" */
+.garage-brand-shine {
+  background: linear-gradient(180deg, #F9EE87 0%, #E5C448 50%, #BA932B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  filter: drop-shadow(0 1px 1px rgba(15, 23, 42, 0.25));
+}
+
+/* Bright Sunny Gold Gradient for All Other Headings & Text */
+.gold-shine-text {
+  background: linear-gradient(135deg, #FFF9C4 0%, #FFD600 35%, #FFAB00 70%, #FF6D00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  font-weight: 900;
+}
+
+.gold-btn-shine {
+  background: linear-gradient(135deg, #FFF59D 0%, #FFD600 45%, #FFAB00 85%, #FF8F00 100%) !important;
+  color: #0f172a !important;
+  border: 1px solid #FFE082 !important;
+  font-weight: 800 !important;
+}
+
+.gold-btn-shine:hover {
+  background: linear-gradient(135deg, #FFF9C4 0%, #FFEA00 45%, #FFC400 85%, #FFA000 100%) !important;
+}
+
+.gold-badge-shine {
+  background: linear-gradient(135deg, #FFFDE7 0%, #FFF59D 50%, #FFE082 100%);
+  border: 1px solid #FFD54F;
+  color: #78350F;
+  font-weight: 700;
 }
 
 /* Custom Scrollbar */

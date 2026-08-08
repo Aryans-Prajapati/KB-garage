@@ -21,10 +21,17 @@ pnpm-debug.log*
 .env
 .env*.local
 
+# Python & Database
+*.db
+*.sqlite3
+__pycache__/
+**/__pycache__/
+venv/
+.venv/
+
 # System & Editor files
 .DS_Store
 *.pem
 .idea/
 .vscode/
 *.tsbuildinfo
-

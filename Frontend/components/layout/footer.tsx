@@ -12,20 +12,20 @@ export function Footer() {
           {/* Brand Col */}
           <div className="space-y-4">
             <Link href="/" className="group flex items-center gap-3" aria-label="KB GARAGE Home">
-              <div className="relative w-10 h-10 md:w-11 md:h-11 shrink-0 transition-transform duration-300 group-hover:scale-105">
+              <div className="relative w-14 h-14 md:w-16 md:h-16 shrink-0 transition-transform duration-300 group-hover:scale-105">
                 <Image
                   src="/logo.svg"
                   alt="KB GARAGE Logo"
                   fill
-                  className="object-contain drop-shadow-[0_2px_8px_rgba(212,175,55,0.3)]"
+                  className="object-contain drop-shadow-[0_4px_12px_rgba(212,175,55,0.4)]"
                 />
               </div>
-              <span className="font-heading text-2xl font-extrabold tracking-tight text-white leading-none">
-                KB <span className="text-secondary font-black tracking-widest">GARAGE</span>
+              <span className="font-heading text-2xl md:text-3xl font-black tracking-tight text-white leading-none">
+                KB <span className="gold-shine-text font-black tracking-widest">GARAGE</span>
               </span>
             </Link>
             <p className="text-sm text-slate-400 leading-relaxed">
-              Precision engineering, custom tuning, ceramic protection, and high-performance automotive maintenance tailored for enthusiasts.
+              Precision engineering, custom tuning, ceramic protection, and high-performance automotive maintenance tailored for enthusiasts across India.
             </p>
             <div className="flex items-center gap-2 text-tertiary text-xs font-semibold uppercase tracking-wider">
               <ShieldCheck className="w-4 h-4" />
@@ -65,15 +65,15 @@ export function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
-                <span>104 Precision Drive, Apex Motors Complex, CA 90210</span>
+                <span>Apex Motors Complex, WE Highway, Andheri East, Mumbai, Maharashtra 400069</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-secondary shrink-0" />
-                <span>+1 (800) 555-0199</span>
+                <span>+91 98765 43210</span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-secondary shrink-0" />
-                <span>service@kbgarage.com</span>
+                <span>service@kbgarage.in</span>
               </li>
             </ul>
           </div>
