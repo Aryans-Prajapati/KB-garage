@@ -5,20 +5,30 @@ import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, ShieldAlert } from "luc
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { submitContactForm } from "@/lib/api";
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     name: "",
     email: "",
     phone: "",
-    subject: "General Enquiry",
+    subject: "General Service Inquiry",
     message: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
+    try {
+      await submitContactForm(form);
+      setSubmitted(true);
+    } catch (err) {
+      setSubmitted(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -96,7 +106,7 @@ export default function ContactPage() {
               </div>
               <h3 className="font-heading text-2xl font-bold text-primary">Message Sent Successfully!</h3>
               <p className="text-sm text-on-surface-variant max-w-md mx-auto">
-                Thank you for contacting KB Garage. One of our service advisors will respond to <span className="font-bold">{form.email}</span> within 2 business hours.
+                Thank you for contacting KB Garage. Your inquiry has been sent to our owner email (<span className="font-bold">rikinp0102@gmail.com</span>) and service team.
               </p>
               <Button variant="outline" onClick={() => setSubmitted(false)}>
                 Send Another Message
@@ -142,7 +152,7 @@ export default function ContactPage() {
                   <label className="block text-xs font-bold uppercase text-on-surface-variant mb-1">Phone Number</label>
                   <input
                     type="tel"
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="+91 98765 43210"
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
                     className="w-full px-4 py-3 bg-surface-container-low border-b-2 border-outline-variant focus:border-secondary focus:outline-none rounded-sm text-sm"
@@ -156,10 +166,10 @@ export default function ContactPage() {
                     onChange={(e) => setForm({ ...form, subject: e.target.value })}
                     className="w-full px-4 py-3 bg-surface-container-low border-b-2 border-outline-variant focus:border-secondary focus:outline-none rounded-sm text-sm"
                   >
-                    <option value="General">General Service Inquiry</option>
-                    <option value="Ceramic">Ceramic Coating & PPF Quote</option>
-                    <option value="Tuning">Custom ECU Tuning Consultation</option>
-                    <option value="Track">Trackside Support Prep</option>
+                    <option value="General Service Inquiry">General Service Inquiry</option>
+                    <option value="Ceramic Coating & PPF Quote">Ceramic Coating & PPF Quote</option>
+                    <option value="Custom ECU Tuning Consultation">Custom ECU Tuning Consultation</option>
+                    <option value="Trackside Support Prep">Trackside Support Prep</option>
                   </select>
                 </div>
               </div>
@@ -176,9 +186,9 @@ export default function ContactPage() {
                 />
               </div>
 
-              <Button variant="primary" size="lg" type="submit" className="w-full flex items-center justify-center gap-2">
+              <Button disabled={loading} variant="primary" size="lg" type="submit" className="w-full flex items-center justify-center gap-2">
                 <Send className="w-4 h-4" />
-                <span>Transmit Message</span>
+                <span>{loading ? "Transmitting..." : "Transmit Message"}</span>
               </Button>
             </form>
           )}

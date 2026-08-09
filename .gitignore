@@ -21,13 +21,15 @@ pnpm-debug.log*
 .env
 .env*.local
 
-# Python & Database
+# Python & Database & Media
 *.db
 *.sqlite3
 __pycache__/
 **/__pycache__/
 venv/
 .venv/
+media/
+**/media/
 
 # System & Editor files
 .DS_Store

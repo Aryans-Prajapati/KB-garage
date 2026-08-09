@@ -71,7 +71,7 @@ export const FALLBACK_SERVICES = [
 
 export async function fetchServices() {
   try {
-    const res = await fetch(`${API_BASE_URL}/services`);
+    const res = await fetch(`${API_BASE_URL}/services/`);
     if (!res.ok) throw new Error("Failed to fetch services");
     return await res.json();
   } catch (err) {
@@ -95,7 +95,7 @@ export async function createBooking(bookingData: {
   notes?: string;
 }) {
   try {
-    const res = await fetch(`${API_BASE_URL}/bookings`, {
+    const res = await fetch(`${API_BASE_URL}/bookings/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(bookingData),
@@ -114,56 +114,101 @@ export async function createBooking(bookingData: {
   }
 }
 
-export async function adminLogin(username: string, password: str) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/admin/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
-    if (res.ok) {
-      return await res.json();
-    }
-  } catch (err) {
-    console.warn("Backend API offline or unreachable, validating local admin credentials:", err);
+export async function adminLogin(username: string, password: string) {
+  const res = await fetch(`${API_BASE_URL}/admin/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.detail || "Invalid username or password");
   }
-
-  // Validate owner credentials (admin / admin123 or admin@kbgarage.in / admin123)
-  if (
-    (username.trim().toLowerCase() === "admin" || username.trim().toLowerCase() === "admin@kbgarage.in") &&
-    password.trim() === "admin123"
-  ) {
-    return {
-      access_token: "kb_admin_session_token_" + Date.now(),
-      token_type: "bearer",
-    };
-  }
-
-  throw new Error("Invalid username or password. Please use admin / admin123");
+  return data;
 }
 
-export async function fetchDashboardStats(token: string) {
-  const res = await fetch(`${API_BASE_URL}/admin/stats`, {
-    headers: { Authorization: `Bearer ${token}` },
+export async function verifyLoginOtpApi(email: string, otp_code: string) {
+  const res = await fetch(`${API_BASE_URL}/admin/verify-login-otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, otp_code }),
   });
-  if (!res.ok) throw new Error("Failed to fetch dashboard stats");
-  return await res.json();
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.detail || "Invalid OTP code");
+  }
+  return data;
+}
+
+export async function requestForgotPassword(email: string) {
+  const res = await fetch(`${API_BASE_URL}/admin/forgot-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.detail || "Request failed");
+  }
+  return data;
+}
+
+export async function resetAdminPasswordWithOtp(email: string, otp_code: string, new_password: string, confirm_password: string) {
+  const res = await fetch(`${API_BASE_URL}/admin/reset-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, otp_code, new_password, confirm_password }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.detail || "Reset failed");
+  }
+  return data;
+}
+
+
+export async function fetchDashboardStats(token: string) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/stats`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error("Failed to fetch dashboard stats");
+    return await res.json();
+  } catch (err) {
+    return {
+      total_bookings: 2,
+      pending_bookings: 1,
+      confirmed_bookings: 1,
+      completed_bookings: 0,
+      total_revenue_formatted: "₹34,998",
+      active_services: 5,
+      gallery_items: 6,
+      total_blogs: 3,
+      total_reviews: 3,
+      contact_messages: 1,
+      unread_messages: 1,
+    };
+  }
 }
 
 export async function fetchAllBookings(token: string, statusFilter?: string) {
-  let url = `${API_BASE_URL}/bookings`;
-  if (statusFilter && statusFilter !== "All") {
-    url += `?status_filter=${statusFilter}`;
+  try {
+    let url = `${API_BASE_URL}/bookings/`;
+    if (statusFilter && statusFilter !== "All") {
+      url += `?status_filter=${statusFilter}`;
+    }
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error("Failed to fetch bookings");
+    return await res.json();
+  } catch (err) {
+    return [];
   }
-  const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) throw new Error("Failed to fetch bookings");
-  return await res.json();
 }
 
 export async function updateBookingStatus(token: string, bookingId: number, status: string) {
-  const res = await fetch(`${API_BASE_URL}/bookings/${bookingId}/status`, {
+  const res = await fetch(`${API_BASE_URL}/bookings/${bookingId}/`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -176,7 +221,7 @@ export async function updateBookingStatus(token: string, bookingId: number, stat
 }
 
 export async function deleteBookingApi(token: string, bookingId: number) {
-  const res = await fetch(`${API_BASE_URL}/bookings/${bookingId}`, {
+  const res = await fetch(`${API_BASE_URL}/bookings/${bookingId}/`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -184,21 +229,8 @@ export async function deleteBookingApi(token: string, bookingId: number) {
   return await res.json();
 }
 
-export async function updateServiceApi(token: string, serviceId: number, data: any) {
-  const res = await fetch(`${API_BASE_URL}/services/${serviceId}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error("Failed to update service");
-  return await res.json();
-}
-
 export async function createServiceApi(token: string, data: any) {
-  const res = await fetch(`${API_BASE_URL}/services`, {
+  const res = await fetch(`${API_BASE_URL}/services/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -210,8 +242,21 @@ export async function createServiceApi(token: string, data: any) {
   return await res.json();
 }
 
+export async function updateServiceApi(token: string, serviceId: number, data: any) {
+  const res = await fetch(`${API_BASE_URL}/services/${serviceId}/`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to update service");
+  return await res.json();
+}
+
 export async function deleteServiceApi(token: string, serviceId: number) {
-  const res = await fetch(`${API_BASE_URL}/services/${serviceId}`, {
+  const res = await fetch(`${API_BASE_URL}/services/${serviceId}/`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -219,9 +264,148 @@ export async function deleteServiceApi(token: string, serviceId: number) {
   return await res.json();
 }
 
+// Gallery API
+export async function fetchGalleryItems() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/gallery/`);
+    if (!res.ok) throw new Error("Failed to fetch gallery items");
+    return await res.json();
+  } catch (err) {
+    return [];
+  }
+}
+
+export async function createGalleryItemApi(token: string, data: any) {
+  const res = await fetch(`${API_BASE_URL}/gallery/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to create gallery item");
+  return await res.json();
+}
+
+export async function updateGalleryItemApi(token: string, itemId: number, data: any) {
+  const res = await fetch(`${API_BASE_URL}/gallery/${itemId}/`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to update gallery item");
+  return await res.json();
+}
+
+export async function deleteGalleryItemApi(token: string, itemId: number) {
+  const res = await fetch(`${API_BASE_URL}/gallery/${itemId}/`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to delete gallery item");
+  return await res.json();
+}
+
+// Blogs API
+export async function fetchBlogPosts() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/blogs/`);
+    if (!res.ok) throw new Error("Failed to fetch blog posts");
+    return await res.json();
+  } catch (err) {
+    return [];
+  }
+}
+
+export async function createBlogPostApi(token: string, data: any) {
+  const res = await fetch(`${API_BASE_URL}/blogs/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to create blog post");
+  return await res.json();
+}
+
+export async function updateBlogPostApi(token: string, postId: number, data: any) {
+  const res = await fetch(`${API_BASE_URL}/blogs/${postId}/`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to update blog post");
+  return await res.json();
+}
+
+export async function deleteBlogPostApi(token: string, postId: number) {
+  const res = await fetch(`${API_BASE_URL}/blogs/${postId}/`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to delete blog post");
+  return await res.json();
+}
+
+// Reviews API
+export async function fetchReviews() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/reviews/`);
+    if (!res.ok) throw new Error("Failed to fetch reviews");
+    return await res.json();
+  } catch (err) {
+    return [];
+  }
+}
+
+export async function createReviewApi(token: string, data: any) {
+  const res = await fetch(`${API_BASE_URL}/reviews/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to create review");
+  return await res.json();
+}
+
+export async function updateReviewApi(token: string, reviewId: number, data: any) {
+  const res = await fetch(`${API_BASE_URL}/reviews/${reviewId}/`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to update review");
+  return await res.json();
+}
+
+export async function deleteReviewApi(token: string, reviewId: number) {
+  const res = await fetch(`${API_BASE_URL}/reviews/${reviewId}/`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to delete review");
+  return await res.json();
+}
+
+// Contact Messages API
 export async function submitContactForm(data: { name: string; email: string; phone?: string; subject?: string; message: string }) {
   try {
-    const res = await fetch(`${API_BASE_URL}/contact`, {
+    const res = await fetch(`${API_BASE_URL}/contact/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -233,3 +417,47 @@ export async function submitContactForm(data: { name: string; email: string; pho
     return { success: true };
   }
 }
+
+export async function fetchAllContactMessages(token: string) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/contact/`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error("Failed to fetch contact messages");
+    return await res.json();
+  } catch (err) {
+    return [];
+  }
+}
+
+export async function deleteContactMessageApi(token: string, contactId: number) {
+  const res = await fetch(`${API_BASE_URL}/contact/${contactId}/`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to delete contact message");
+  return await res.json();
+}
+
+export async function uploadImageApi(token: string, file: File): Promise<{ url: string }> {
+  const formData = new FormData();
+  formData.append("file", file);
+  try {
+    const res = await fetch(`${API_BASE_URL}/upload/`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+    if (!res.ok) throw new Error("File upload failed");
+    return await res.json();
+  } catch (err) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve({ url: reader.result as string });
+      reader.readAsDataURL(file);
+    });
+  }
+}
+

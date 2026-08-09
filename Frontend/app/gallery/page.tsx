@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { fetchGalleryItems } from "@/lib/api";
 
-const GALLERY_ITEMS = [
+const FALLBACK_GALLERY_ITEMS = [
   {
     id: 1,
     title: "Tata Nexon EV (Dark Edition)",
@@ -68,10 +69,19 @@ const CATEGORIES = [
 ];
 
 export default function GalleryPage() {
+  const [items, setItems] = useState<any[]>(FALLBACK_GALLERY_ITEMS);
   const [filter, setFilter] = useState("all");
 
+  useEffect(() => {
+    fetchGalleryItems()
+      .then((data) => {
+        if (data && data.length > 0) setItems(data);
+      })
+      .catch(() => {});
+  }, []);
+
   const filteredItems =
-    filter === "all" ? GALLERY_ITEMS : GALLERY_ITEMS.filter((item) => item.category === filter);
+    filter === "all" ? items : items.filter((item) => item.category === filter);
 
   return (
     <div className="py-12 space-y-12">
@@ -95,10 +105,11 @@ export default function GalleryPage() {
             <button
               key={cat.id}
               onClick={() => setFilter(cat.id)}
-              className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded transition-all ${filter === cat.id
+              className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded transition-all ${
+                filter === cat.id
                   ? "bg-secondary text-white shadow-sm"
                   : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container"
-                }`}
+              }`}
             >
               {cat.label}
             </button>
@@ -117,7 +128,7 @@ export default function GalleryPage() {
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute top-3 right-3">
-                  <Badge variant="secondary">{item.badge}</Badge>
+                  <Badge variant="secondary">{item.badge || item.category}</Badge>
                 </div>
               </div>
               <div className="p-6 flex-grow flex flex-col justify-between">

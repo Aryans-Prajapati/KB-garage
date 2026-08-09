@@ -113,6 +113,7 @@ export function Footer() {
             <Link href="/about" className="hover:text-slate-400 transition-colors">Privacy Policy</Link>
             <Link href="/about" className="hover:text-slate-400 transition-colors">Terms of Service</Link>
             <Link href="/contact" className="hover:text-slate-400 transition-colors">Support</Link>
+            <Link href="/admin" className="hover:text-secondary transition-colors font-semibold text-slate-300">Owner Portal</Link>
           </div>
         </div>
       </div>
