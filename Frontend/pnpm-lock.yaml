@@ -183,7 +183,7 @@ packages:
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
   '@next/env@15.5.21':
-    resolution: {integrity: sha512-d9AFQVPEYNr+aqokIiPLNK/MTyt3DWa/dpKveiAaVccUadFbhFEvY6FXYX2LJO2Hv7PHnLBu2oWwB4uBuHjr/w==}
+    resolution: {integrity: sha512-hjJI/GfrjWHgNguRIBzItjRRu0m3Nrz17GhxsjuHfjIvg9hyg3239REd2dpI+bpMTFuVrVprHzEQ19m++cDtbw==}
 
   '@next/swc-darwin-arm64@15.5.21':
     resolution: {integrity: sha512-u7lg4Mpl9qWpKgy6NzEkz/w0/keEHtOybmIl0ykgItBxEM5mYotS5PmqTpo+Rhg8FiOiWgwr8USxmKQkqLBCrw==}
@@ -222,7 +222,7 @@ packages:
     os: [linux]
 
   '@next/swc-wasm-nodejs@15.5.21':
-    resolution: {integrity: sha512-fVCdXV8P0SVkdKpBtBDYOgr1a9DADvyX61PqYOjgAWY9yV0DKqWGpgQpqgRBP6SaUz3B3v/4I2Xj+b+rbsaVvQ==}
+    resolution: {integrity: sha512-dnko5J6xWjhgWJLXA7rz79svQJ9MXVUe4r198sHzsT3lCu7YYTOYF+JE7bDdROXtUyUP1ruoR5zOhymlDoawjA==}
 
   '@next/swc-win32-arm64-msvc@15.5.21':
     resolution: {integrity: sha512-s8w6EeqNmi6gdvM19tqKKWbCyOBvXFbndkGHl+c9YrzsLARRdCHsD9S1fMj8gsXm9v8vhC8s3N8rjuC/XrtkEg==}
@@ -498,7 +498,7 @@ packages:
     hasBin: true
 
   next@15.5.21:
-    resolution: {integrity: sha512-Hch4wzbaX0vKQtalpXvUiw5sYivBy4cm5rzUKrBnUB/y436LGrvOUqYvlSeNVCWFO/770gDlltR9gqZH62ct4Q==}
+    resolution: {integrity: sha512-/TsdBtkWLhkl+NVL3Uqws2UphNd6IPzOtzSk1fHaf+0P7GQKLZDUytyhns/Ykbzdy9+YRjwG7ONvrHaaTDdFqQ==}
     hasBin: true
     peerDependencies:
       '@opentelemetry/api': ^1.1.0
