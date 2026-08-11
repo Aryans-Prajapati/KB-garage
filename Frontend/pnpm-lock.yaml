@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@next/swc-wasm-nodejs':
+        specifier: 15.1.6
+        version: 15.1.6
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -217,6 +220,9 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
+
+  '@next/swc-wasm-nodejs@15.1.6':
+    resolution: {integrity: sha512-fVCdXV8P0SVkdKpBtBDYOgr1a9DADvyX61PqYOjgAWY9yV0DKqWGpgQpqgRBP6SaUz3B3v/4I2Xj+b+rbsaVvQ==}
 
   '@next/swc-win32-arm64-msvc@15.1.6':
     resolution: {integrity: sha512-s8w6EeqNmi6gdvM19tqKKWbCyOBvXFbndkGHl+c9YrzsLARRdCHsD9S1fMj8gsXm9v8vhC8s3N8rjuC/XrtkEg==}
@@ -841,6 +847,8 @@ snapshots:
 
   '@next/swc-linux-x64-musl@15.1.6':
     optional: true
+
+  '@next/swc-wasm-nodejs@15.1.6': {}
 
   '@next/swc-win32-arm64-msvc@15.1.6':
     optional: true
