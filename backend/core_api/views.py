@@ -15,12 +15,61 @@ from .serializers import (
     ServiceSerializer, BookingSerializer, GalleryItemSerializer,
     BlogPostSerializer, ReviewSerializer, ContactMessageSerializer,
     AdminLoginSerializer, VerifyLoginOTPSerializer,
-    ForgotPasswordSerializer, ResetPasswordOTPSerializer
+    ForgotPasswordSerializer, ResetPasswordOTPSerializer, AdminUserSerializer
 )
 from .utils import (
     send_booking_notification_email, send_contact_notification_email,
     send_forgot_password_email, send_otp_email
 )
+
+
+class AdminUserManageView(APIView):
+    def get(self, request):
+        admin_users = User.objects.filter(is_staff=True).order_by('-date_joined')
+        serializer = AdminUserSerializer(admin_users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = AdminUserSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email'].strip().lower()
+            username = serializer.validated_data['username'].strip().lower()
+
+            if User.objects.filter(email__iexact=email).exists():
+                return Response({'detail': f'A user with email {email} already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+            if User.objects.filter(username__iexact=username).exists():
+                return Response({'detail': f'A user with username {username} already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            user = serializer.save()
+
+            # Generate initial 6-digit OTP code for the new admin user
+            otp_code = str(random.randint(100000, 999999))
+            AdminOTP.objects.create(email=user.email, otp_code=otp_code, purpose='welcome_admin')
+            
+            # Send OTP email notification to the new admin email
+            send_otp_email(user.email, otp_code, purpose='welcome')
+
+            return Response({
+                'detail': f'New admin user {user.username} created successfully! Initial OTP security code dispatched to {user.email}.',
+                'user': AdminUserSerializer(user).data
+            }, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, user_id=None):
+        if not user_id:
+            return Response({'detail': 'User ID required for deletion.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = User.objects.get(id=user_id)
+            if user.username.lower() == 'admin':
+                return Response({'detail': 'Primary root admin user cannot be deleted.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            username = user.username
+            user.delete()
+            return Response({'detail': f'Admin user {username} removed successfully.'}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'detail': 'Admin user not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class FileUploadView(APIView):

@@ -4,7 +4,7 @@ from .views import (
     ServiceViewSet, BookingViewSet, GalleryItemViewSet,
     BlogPostViewSet, ReviewViewSet, ContactMessageViewSet,
     AdminLoginView, AdminVerifyLoginOTPView, AdminForgotPasswordView,
-    AdminResetPasswordView, AdminStatsView, FileUploadView
+    AdminResetPasswordView, AdminStatsView, FileUploadView, AdminUserManageView
 )
 
 router = DefaultRouter()
@@ -21,6 +21,8 @@ urlpatterns = [
     path('admin/forgot-password', AdminForgotPasswordView.as_view(), name='admin_forgot_password'),
     path('admin/reset-password', AdminResetPasswordView.as_view(), name='admin_reset_password'),
     path('admin/stats', AdminStatsView.as_view(), name='admin_stats'),
+    path('admin/users', AdminUserManageView.as_view(), name='admin_users'),
+    path('admin/users/<int:user_id>', AdminUserManageView.as_view(), name='admin_user_detail'),
     path('upload/', FileUploadView.as_view(), name='file_upload'),
     path('', include(router.urls)),
 ]

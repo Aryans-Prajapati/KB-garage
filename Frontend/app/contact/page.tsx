@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, ShieldAlert } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -41,63 +41,14 @@ export default function ContactPage() {
             Contact KB Garage
           </h1>
           <p className="text-slate-300 max-w-xl mx-auto text-base">
-            Have a technical question or need emergency trackside support? Connect directly with our team.
+            Have a technical question or want to schedule a visit? Connect directly with our team.
           </p>
         </div>
       </section>
 
       {/* Main Form & Info Grid */}
       <section className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-1 lg:grid-cols-3 gap-12">
-        {/* Info Sidebar */}
-        <div className="space-y-6">
-          <Card className="p-6 space-y-6">
-            <h3 className="font-heading text-xl font-bold text-primary">Garage Location</h3>
-            <ul className="space-y-4 text-sm">
-              <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-secondary shrink-0 mt-1" />
-                <div>
-                  <div className="font-bold text-primary">KB Garage HQ</div>
-                  <div className="text-on-surface-variant">104 Precision Drive, Apex Motors Complex, CA 90210</div>
-                </div>
-              </li>
-
-              <li className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-secondary shrink-0" />
-                <div>
-                  <div className="font-bold text-primary">Customer Hotline</div>
-                  <div className="text-on-surface-variant">+1 (800) 555-0199</div>
-                </div>
-              </li>
-
-              <li className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-secondary shrink-0" />
-                <div>
-                  <div className="font-bold text-primary">Service Email</div>
-                  <div className="text-on-surface-variant">service@kbgarage.com</div>
-                </div>
-              </li>
-            </ul>
-          </Card>
-
-          {/* Emergency Support Card */}
-          <Card className="p-6 bg-secondary/5 border-secondary/30 space-y-3">
-            <div className="flex items-center gap-2 text-secondary font-bold text-xs uppercase tracking-wider">
-              <ShieldAlert className="w-4 h-4" />
-              <span>Emergency Hotline</span>
-            </div>
-            <h4 className="font-heading font-bold text-primary text-base">24/7 Breakdown & Towing</h4>
-            <p className="text-xs text-on-surface-variant">
-              Direct emergency towing dispatch for enrolled supercar & performance vehicle clients.
-            </p>
-            <a href="tel:+18005550199" className="inline-block pt-1">
-              <Button variant="primary" size="sm" className="w-full">
-                Call Emergency Line
-              </Button>
-            </a>
-          </Card>
-        </div>
-
-        {/* Contact Form */}
+        {/* Contact Form - FIRST */}
         <Card className="lg:col-span-2 p-8 space-y-6">
           {submitted ? (
             <div className="py-12 text-center space-y-4">
@@ -193,6 +144,74 @@ export default function ContactPage() {
             </form>
           )}
         </Card>
+
+        {/* Info Sidebar (Location & Map) - SECOND */}
+        <div className="space-y-6">
+          <Card className="p-6 space-y-6">
+            <h3 className="font-heading text-xl font-bold text-primary">Garage Location</h3>
+            <ul className="space-y-4 text-sm">
+              <li className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-secondary shrink-0 mt-1" />
+                <div>
+                  <div className="font-bold text-primary">KB Garage HQ</div>
+                  <div className="text-on-surface-variant">104 Precision Drive, Apex Motors Complex, CA 90210</div>
+                </div>
+              </li>
+
+              <li className="flex items-center gap-3">
+                <Phone className="w-5 h-5 text-secondary shrink-0" />
+                <div>
+                  <div className="font-bold text-primary">Customer Line</div>
+                  <div className="text-on-surface-variant">+1 (800) 555-0199</div>
+                </div>
+              </li>
+
+              <li className="flex items-center gap-3">
+                <Mail className="w-5 h-5 text-secondary shrink-0" />
+                <div>
+                  <div className="font-bold text-primary">Service Email</div>
+                  <div className="text-on-surface-variant">service@kbgarage.com</div>
+                </div>
+              </li>
+            </ul>
+          </Card>
+
+          {/* Mini Google Map Card */}
+          <Card className="p-5 bg-white border border-slate-200/90 shadow-sm space-y-3 rounded-xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-secondary font-bold text-xs uppercase tracking-wider">
+                <MapPin className="w-4 h-4" />
+                <span>Garage Location Map</span>
+              </div>
+              <a
+                href="https://maps.google.com/?q=Apex+Motors+Complex+CA+90210"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] font-semibold text-secondary hover:underline flex items-center gap-1"
+              >
+                <span>View Full Map</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+
+            <div className="w-full h-52 rounded-lg overflow-hidden border border-slate-200 relative bg-slate-100">
+              <iframe
+                title="KB Garage Location Map"
+                src="https://maps.google.com/maps?q=Apex+Motors+Complex+CA+90210&t=&z=14&ie=UTF8&iwloc=&output=embed"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen={false}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="w-full h-full"
+              />
+            </div>
+            <p className="text-xs text-on-surface-variant">
+              Temporary location preview. You can update the map coordinates or embed link at any time.
+            </p>
+          </Card>
+        </div>
       </section>
     </div>
   );

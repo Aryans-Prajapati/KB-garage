@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Calendar, ChevronDown, PhoneCall } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -19,7 +20,6 @@ const NAV_ITEMS = [
       { label: "Precision Detailing", href: "/services#detailing" },
     ],
   },
-  { label: "Booking", href: "/booking" },
   { label: "Gallery", href: "/gallery" },
   { label: "About Us", href: "/about" },
   { label: "Blog & Reviews", href: "/blog" },
@@ -29,6 +29,7 @@ const NAV_ITEMS = [
 export function TopNavBar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSubmenuOpen, setMobileSubmenuOpen] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
@@ -53,12 +54,16 @@ export function TopNavBar() {
     };
   }, [mobileMenuOpen]);
 
+  const toggleMobileSubmenu = (label: string) => {
+    setMobileSubmenuOpen((prev) => (prev === label ? null : label));
+  };
+
   return (
     <>
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${scrolled
           ? "bg-white/95 backdrop-blur-xl border-b border-slate-200/90 py-3 shadow-md shadow-slate-900/5 text-slate-900"
-          : "bg-white/90 backdrop-blur-md border-b border-slate-200/60 py-4 shadow-sm text-slate-900"
+          : "bg-white/90 backdrop-blur-md border-b border-slate-200/60 py-3.5 shadow-sm text-slate-900"
           }`}
       >
         <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-2">
@@ -67,10 +72,10 @@ export function TopNavBar() {
           <div className="flex-initial flex justify-start items-center">
             <Link
               href="/"
-              className="group flex items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-lg"
+              className="group flex items-center gap-2.5 sm:gap-3 focus:outline-none rounded-lg"
               aria-label="KB GARAGE Home"
             >
-              <div className="relative w-14 h-14 md:w-16 md:h-16 shrink-0 transition-transform duration-300 group-hover:scale-105">
+              <div className="relative w-12 h-12 md:w-16 md:h-16 shrink-0 transition-transform duration-300 group-hover:scale-105">
                 <Image
                   src="/logo.svg"
                   alt="KB GARAGE Logo"
@@ -87,10 +92,10 @@ export function TopNavBar() {
             </Link>
           </div>
 
-          {/* Navigation Links - Shifted slightly left side */}
+          {/* Navigation Links - Centered (Desktop) */}
           <nav
             aria-label="Main Navigation"
-            className="hidden lg:flex items-center justify-start gap-1 xl:gap-2 flex-1 lg:pl-8 xl:pl-12"
+            className="hidden lg:flex items-center justify-center gap-1 xl:gap-3 flex-1 mx-auto"
           >
             {NAV_ITEMS.map((item) => {
               const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
@@ -105,7 +110,7 @@ export function TopNavBar() {
                 >
                   <Link
                     href={item.href}
-                    className={`relative inline-flex items-center gap-1 font-sans text-xs xl:text-sm uppercase tracking-wider font-semibold transition-colors duration-300 py-1 focus:outline-none focus-visible:ring-1 focus-visible:ring-secondary rounded ${isActive ? "text-secondary font-bold" : "text-slate-700 hover:text-slate-950"
+                    className={`relative inline-flex items-center gap-1 font-sans text-xs xl:text-sm uppercase tracking-wider font-semibold transition-colors duration-300 py-1 focus:outline-none ${isActive ? "text-secondary font-bold" : "text-slate-700 hover:text-slate-950"
                       }`}
                   >
                     <span>{item.label}</span>
@@ -120,7 +125,7 @@ export function TopNavBar() {
                     />
                   </Link>
 
-                  {/* Submenu Dropdown */}
+                  {/* Desktop Submenu Dropdown */}
                   {hasSubmenu && item.submenu && (
                     <div
                       className={`absolute top-full left-1/2 -translate-x-1/2 pt-2 w-56 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${activeDropdown === item.label
@@ -151,7 +156,7 @@ export function TopNavBar() {
           </nav>
 
           {/* CTA Button & Mobile Toggle - Far Right */}
-          <div className="flex-initial flex justify-end items-center gap-3">
+          <div className="flex-initial flex justify-end items-center gap-2 sm:gap-3">
             <Link href="/booking" className="hidden sm:inline-flex">
               <Button
                 variant="primary"
@@ -164,14 +169,18 @@ export function TopNavBar() {
               </Button>
             </Link>
 
-            {/* Mobile Hamburger Toggle Button */}
+            {/* Mobile Hamburger Toggle Button (Clean icon, no background box or border) */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden relative p-2.5 rounded-xl text-slate-700 hover:text-slate-950 hover:bg-slate-100 border border-slate-200 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+              className="lg:hidden p-2 text-slate-800 hover:text-secondary transition-colors duration-200 focus:outline-none"
               aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X className="w-6 h-6 text-secondary" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? (
+                <X className="w-7 h-7 text-secondary" />
+              ) : (
+                <Menu className="w-7 h-7" />
+              )}
             </button>
           </div>
         </div>
@@ -184,62 +193,99 @@ export function TopNavBar() {
       >
         {/* Backdrop overlay */}
         <div
-          className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm transition-opacity duration-300"
+          className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm transition-opacity duration-300"
           onClick={() => setMobileMenuOpen(false)}
         />
 
         {/* Slide-in Menu Content */}
         <div
-          className={`absolute top-0 right-0 w-full sm:w-80 h-full bg-white border-l border-slate-200 shadow-2xl flex flex-col justify-between p-6 pt-24 overflow-y-auto transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${mobileMenuOpen ? "translate-x-0" : "translate-x-full"
+          className={`absolute top-0 right-0 w-full sm:w-80 h-full bg-white shadow-2xl flex flex-col justify-between p-6 pt-6 overflow-y-auto transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${mobileMenuOpen ? "translate-x-0" : "translate-x-full"
             }`}
         >
           <div className="space-y-6">
-            <div className="border-b border-slate-100 pb-3">
-              <span className="text-[11px] font-mono uppercase tracking-widest text-slate-400">
+            {/* Drawer Header with Clean Close Button (No box, no border) */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <span className="text-xs font-mono uppercase tracking-widest text-slate-400 font-bold">
                 Navigation Menu
               </span>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-1.5 text-slate-700 hover:text-secondary transition-colors focus:outline-none"
+                aria-label="Close menu"
+              >
+                <X className="w-6 h-6" />
+              </button>
             </div>
 
-            <div className="flex flex-col space-y-1">
+            {/* Menu Items - Clean, Box-less, Slide Left-to-Right Underline */}
+            <div className="flex flex-col space-y-3">
               {NAV_ITEMS.map((item) => {
                 const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+                const hasSubmenu = Boolean(item.submenu);
+                const isSubmenuOpen = mobileSubmenuOpen === item.label;
+
                 return (
                   <div key={item.label} className="flex flex-col">
-                    <Link
-                      href={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`group flex items-center justify-between text-base font-semibold uppercase tracking-wider py-3 px-3 rounded-xl transition-all duration-200 ${isActive
-                        ? "text-secondary bg-secondary/5 border-l-2 border-secondary font-bold"
-                        : "text-slate-800 hover:text-secondary hover:bg-slate-50"
-                        }`}
-                    >
-                      <span className="relative inline-block">
-                        {item.label}
-                        <span
-                          className={`absolute bottom-0 left-0 h-[2px] w-full bg-secondary rounded-full transform origin-left transition-transform duration-300 ${isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-                            }`}
-                        />
-                      </span>
-                    </Link>
+                    <div className="flex items-center justify-between py-1">
+                      <Link
+                        href={item.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`group relative inline-flex items-center py-2 text-base font-semibold uppercase tracking-wider transition-colors duration-200 ${isActive ? "text-secondary font-bold" : "text-slate-800 hover:text-secondary"
+                          }`}
+                      >
+                        <span className="relative inline-block pb-0.5">
+                          {item.label}
+                          {/* Slide Left-to-Right Underline */}
+                          <span
+                            className={`absolute bottom-0 left-0 h-[2px] w-full bg-secondary rounded-full transform origin-left transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+                              }`}
+                          />
+                        </span>
+                      </Link>
 
-                    {/* Submenu links on mobile */}
-                    {item.submenu && (
-                      <div className="ml-4 pl-3 border-l border-slate-200 my-1 space-y-1">
-                        {item.submenu.map((sub) => (
-                          <Link
-                            key={sub.label}
-                            href={sub.href}
-                            onClick={() => setMobileMenuOpen(false)}
-                            className="group/sub flex items-center justify-between text-xs font-semibold text-slate-700 hover:text-secondary py-2 px-2 rounded-lg transition-colors"
-                          >
-                            <span className="relative inline-block">
-                              {sub.label}
-                              <span className="absolute bottom-0 left-0 h-[1.5px] w-full bg-secondary rounded-full transform origin-left transition-transform duration-300 scale-x-0 group-hover/sub:scale-x-100" />
-                            </span>
-                          </Link>
-                        ))}
-                      </div>
-                    )}
+                      {/* Accordion Dropdown Trigger for Services */}
+                      {hasSubmenu && (
+                        <button
+                          onClick={() => toggleMobileSubmenu(item.label)}
+                          className="p-2 text-slate-600 hover:text-secondary transition-transform focus:outline-none"
+                          aria-label={`Toggle ${item.label} submenu`}
+                        >
+                          <ChevronDown
+                            className={`w-5 h-5 transition-transform duration-300 ${isSubmenuOpen ? "rotate-180 text-secondary" : ""
+                              }`}
+                          />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Submenu Dropdown Accordion on Mobile (Smooth framer-motion reveal) */}
+                    <AnimatePresence initial={false}>
+                      {hasSubmenu && item.submenu && isSubmenuOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.25, ease: [0.25, 1, 0.5, 1] }}
+                          className="overflow-hidden ml-3 pl-3 border-l-2 border-slate-200/80 my-1 space-y-2.5"
+                        >
+                          {item.submenu.map((sub) => {
+                            return (
+                              <Link
+                                key={sub.label}
+                                href={sub.href}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="group/sub relative flex items-center py-1 text-sm font-medium text-slate-600 hover:text-secondary transition-colors"
+                              >
+                                <span className="relative inline-block pb-0.5">
+                                  {sub.label}
+                                  <span className="absolute bottom-0 left-0 h-[1.5px] w-full bg-secondary rounded-full transform origin-left transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] scale-x-0 group-hover/sub:scale-x-100" />
+                                </span>
+                              </Link>
+                            );
+                          })}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 );
               })}
@@ -263,7 +309,7 @@ export function TopNavBar() {
               className="flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 hover:text-slate-900 py-2 transition-colors"
             >
               <PhoneCall className="w-4 h-4 text-secondary" />
-              <span>24/7 Support: +1 (800) 555-0199</span>
+              <span>Support: +1 (800) 555-0199</span>
             </a>
           </div>
         </div>
@@ -271,7 +317,3 @@ export function TopNavBar() {
     </>
   );
 }
-
-
-
-

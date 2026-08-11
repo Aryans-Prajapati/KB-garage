@@ -461,3 +461,42 @@ export async function uploadImageApi(token: string, file: File): Promise<{ url: 
   }
 }
 
+// Admin Users Management API
+export async function fetchAdminUsers(token: string) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/users`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error("Failed to fetch admin users");
+    return await res.json();
+  } catch (err) {
+    return [];
+  }
+}
+
+export async function createAdminUser(token: string, userData: { username: string; email: string; password: string }) {
+  const res = await fetch(`${API_BASE_URL}/admin/users`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(userData),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.detail || Object.values(data).flat().join(" ") || "Failed to create admin user");
+  }
+  return data;
+}
+
+export async function deleteAdminUser(token: string, userId: number) {
+  const res = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || "Failed to delete admin user");
+  return data;
+}
+

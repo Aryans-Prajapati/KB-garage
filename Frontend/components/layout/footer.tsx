@@ -1,18 +1,24 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Phone, Mail, MapPin, Clock, ShieldCheck, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Phone, Mail, MapPin, ShieldCheck, Instagram, Facebook, Twitter, Linkedin } from "lucide-react";
 
 export function Footer() {
+  const socialLinks = [
+    { name: "Instagram", href: "https://instagram.com", icon: Instagram },
+    { name: "Facebook", href: "https://facebook.com", icon: Facebook },
+    { name: "Twitter", href: "https://twitter.com", icon: Twitter },
+    { name: "LinkedIn", href: "https://linkedin.com", icon: Linkedin },
+  ];
+
   return (
-    <footer className="bg-primary text-slate-300 pt-16 pb-12 border-t border-slate-800">
+    <footer className="bg-primary text-slate-300 pt-10 pb-8 border-t border-slate-800">
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-slate-800">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b border-slate-800">
           {/* Brand Col */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <Link href="/" className="group flex items-center gap-3" aria-label="KB GARAGE Home">
-              <div className="relative w-14 h-14 md:w-16 md:h-16 shrink-0 transition-transform duration-300 group-hover:scale-105">
+              <div className="relative w-12 h-12 md:w-14 md:h-14 shrink-0 transition-transform duration-300 group-hover:scale-105">
                 <Image
                   src="/logo.svg"
                   alt="KB GARAGE Logo"
@@ -20,7 +26,7 @@ export function Footer() {
                   className="object-contain drop-shadow-[0_4px_12px_rgba(212,175,55,0.4)]"
                 />
               </div>
-              <span className="font-heading text-2xl md:text-3xl font-black tracking-tight text-white leading-none">
+              <span className="font-heading text-xl md:text-2xl font-black tracking-tight text-white leading-none">
                 KB <span className="gold-shine-text font-black tracking-widest">GARAGE</span>
               </span>
             </Link>
@@ -34,7 +40,7 @@ export function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <h4 className="font-heading text-sm font-bold text-white uppercase tracking-wider">
               Services & Booking
             </h4>
@@ -58,11 +64,11 @@ export function Footer() {
           </div>
 
           {/* Contact Info */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <h4 className="font-heading text-sm font-bold text-white uppercase tracking-wider">
               Contact & Location
             </h4>
-            <ul className="space-y-3 text-sm">
+            <ul className="space-y-2.5 text-sm">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
                 <span>Apex Motors Complex, WE Highway, Andheri East, Mumbai, Maharashtra 400069</span>
@@ -76,38 +82,33 @@ export function Footer() {
                 <span>service@kbgarage.in</span>
               </li>
             </ul>
-          </div>
 
-          {/* Hours */}
-          <div className="space-y-4">
-            <h4 className="font-heading text-sm font-bold text-white uppercase tracking-wider">
-              Operating Hours
-            </h4>
-            <div className="space-y-2 text-sm text-slate-400">
-              <div className="flex justify-between border-b border-slate-800 pb-1">
-                <span>Mon – Fri:</span>
-                <span className="text-white font-medium">8:00 AM – 6:00 PM</span>
-              </div>
-              <div className="flex justify-between border-b border-slate-800 pb-1">
-                <span>Saturday:</span>
-                <span className="text-white font-medium">9:00 AM – 4:00 PM</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Sunday:</span>
-                <span className="text-secondary font-medium">Emergency Only</span>
+            {/* Social Media Links */}
+            <div className="pt-2">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2.5">Follow Us</p>
+              <div className="flex items-center gap-2.5">
+                {socialLinks.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Follow KB Garage on ${item.name}`}
+                      className="w-9 h-9 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-secondary hover:border-secondary/50 hover:bg-slate-800 transition-all duration-200"
+                    >
+                      <Icon className="w-4 h-4" />
+                    </a>
+                  );
+                })}
               </div>
             </div>
-            <Link href="/booking">
-              <Button variant="primary" size="sm" className="w-full mt-2 flex items-center justify-center gap-2">
-                <span>Reserve Slot</span>
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
           </div>
         </div>
 
         {/* Copyright Bottom */}
-        <div className="pt-8 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-4">
+        <div className="pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-4">
           <p>© {new Date().getFullYear()} KB Garage. All rights reserved. Precision & Performance Design.</p>
           <div className="flex gap-6">
             <Link href="/about" className="hover:text-slate-400 transition-colors">Privacy Policy</Link>

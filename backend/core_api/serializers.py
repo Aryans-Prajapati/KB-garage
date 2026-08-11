@@ -1,5 +1,24 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 from .models import Service, Booking, GalleryItem, BlogPost, Review, ContactMessage, PasswordResetToken, AdminOTP
+
+
+class AdminUserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'password', 'is_staff', 'date_joined']
+        read_only_fields = ['id', 'date_joined']
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password'],
+            is_staff=True
+        )
+        return user
 
 
 class ServiceSerializer(serializers.ModelSerializer):

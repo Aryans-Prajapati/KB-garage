@@ -21,6 +21,9 @@ import {
   CheckCircle2,
   DollarSign,
   Upload,
+  Users,
+  UserPlus,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -49,13 +52,16 @@ import {
   fetchAllContactMessages,
   deleteContactMessageApi,
   uploadImageApi,
+  fetchAdminUsers,
+  createAdminUser,
+  deleteAdminUser,
 } from "@/lib/api";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<
-    "bookings" | "services" | "gallery" | "blogs" | "reviews" | "contact"
+    "bookings" | "services" | "gallery" | "blogs" | "reviews" | "contact" | "users"
   >("bookings");
   const [loading, setLoading] = useState(true);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -83,6 +89,15 @@ export default function AdminDashboardPage() {
   const [blogs, setBlogs] = useState<any[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
   const [contacts, setContacts] = useState<any[]>([]);
+  const [adminUsers, setAdminUsers] = useState<any[]>([]);
+
+  // Admin User Form State
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [newUser, setNewUser] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
 
   // Modal / Form States
   const [editingService, setEditingService] = useState<any | null>(null);
@@ -160,6 +175,9 @@ export default function AdminDashboardPage() {
 
         const contactsRes = await fetchAllContactMessages(token);
         setContacts(contactsRes);
+
+        const usersRes = await fetchAdminUsers(token);
+        setAdminUsers(usersRes);
       }
 
       const [servData, galData, blogData, revData] = await Promise.all([
@@ -177,6 +195,36 @@ export default function AdminDashboardPage() {
       console.warn("Data loading issue:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // ADMIN USER HANDLERS
+  const handleCreateAdminUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (token) {
+        const res = await createAdminUser(token, newUser);
+        alert(res.detail || "New admin user created successfully!");
+        setNewUser({ username: "", email: "", password: "" });
+        setShowAddUser(false);
+        const updatedUsers = await fetchAdminUsers(token);
+        setAdminUsers(updatedUsers);
+      }
+    } catch (err: any) {
+      alert(err.message || "Failed to create admin user");
+    }
+  };
+
+  const handleDeleteAdminUser = async (userId: number) => {
+    if (!confirm("Are you sure you want to remove this admin user?")) return;
+    try {
+      if (token) {
+        const res = await deleteAdminUser(token, userId);
+        alert(res.detail || "User removed.");
+        setAdminUsers((prev) => prev.filter((u) => u.id !== userId));
+      }
+    } catch (err: any) {
+      alert(err.message || "Failed to delete user");
     }
   };
 
@@ -427,35 +475,33 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="py-8 max-w-[1400px] mx-auto px-margin-mobile md:px-margin-desktop space-y-8">
+    <div className="py-4 sm:py-8 max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
       {/* Header Banner */}
-      <div className="bg-slate-900 text-white p-6 md:p-8 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl border border-slate-800">
-        <div className="flex items-center gap-4">
-          <div className="relative w-14 h-14 shrink-0">
+      <div className="bg-slate-900 text-white p-4 sm:p-6 md:p-8 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xl border border-slate-800">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="relative w-12 h-12 sm:w-14 sm:h-14 shrink-0">
             <Image src="/logo.svg" alt="KB Garage Logo" fill className="object-contain" />
           </div>
           <div>
-            <h1 className="font-heading text-2xl md:text-3xl font-black text-white tracking-tight">
-              KB Garage Owner Admin Panel
+            <h1 className="font-heading text-lg sm:text-2xl md:text-3xl font-black text-white tracking-tight">
+              KB Garage Admin Portal
             </h1>
-            <p className="text-xs text-slate-400 mt-1">
-              Owner Management Suite: Appointments, Services, Gallery, Blogs, Reviews & Enquiries. Emails sent to <span className="text-secondary font-bold">rikinp0102@gmail.com</span>.
+            <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5 sm:mt-1 leading-snug">
+              Appointments, Services, Gallery, Blogs, Reviews & Enquiries. Transferred to <span className="text-secondary font-bold">rikinp0102@gmail.com</span>.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Button variant="primary" size="sm" onClick={handleLogout} className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white">
+        <div className="w-full sm:w-auto flex items-center justify-end">
+          <Button variant="primary" size="sm" onClick={handleLogout} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-xl text-xs font-bold">
             <LogOut className="w-4 h-4" />
             <span>Logout</span>
           </Button>
         </div>
       </div>
 
-
-
       {/* Admin Navigation Tabs */}
-      <div className="flex border-b border-slate-200 gap-2 overflow-x-auto pb-1">
+      <div className="flex border-b border-slate-200 gap-1.5 overflow-x-auto pb-2 scrollbar-none -mx-3 px-3 sm:mx-0 sm:px-0">
         {[
           { id: "bookings", label: `Bookings (${bookings.length})`, icon: Calendar },
           { id: "services", label: `Services (${services.length})`, icon: Wrench },
@@ -463,13 +509,14 @@ export default function AdminDashboardPage() {
           { id: "blogs", label: `Blogs (${blogs.length})`, icon: BookOpen },
           { id: "reviews", label: `Reviews (${reviews.length})`, icon: Star },
           { id: "contact", label: `Messages (${contacts.length})`, icon: Mail },
+          { id: "users", label: `Admin Users (${adminUsers.length})`, icon: Users },
         ].map((tab) => {
           const Icon = tab.icon;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`px-4 py-3 font-heading font-bold text-xs md:text-sm rounded-t-xl transition-all flex items-center gap-2 shrink-0 ${
+              className={`px-3 sm:px-4 py-2.5 font-heading font-bold text-xs sm:text-sm rounded-xl transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap ${
                 activeTab === tab.id
                   ? "bg-slate-900 text-white shadow-md"
                   : "text-slate-600 hover:bg-slate-100"
@@ -484,19 +531,19 @@ export default function AdminDashboardPage() {
 
       {/* TAB 1: BOOKINGS */}
       {activeTab === "bookings" && (
-        <Card className="p-6 border border-slate-200 space-y-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <Card className="p-4 sm:p-6 border border-slate-200 space-y-5 rounded-2xl">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
-              <h2 className="font-heading text-xl font-extrabold text-primary">Appointment Reservations</h2>
-              <p className="text-xs text-slate-500">When users book appointments, they appear here and generate emails to rikinp0102@gmail.com.</p>
+              <h2 className="font-heading text-lg sm:text-xl font-extrabold text-primary">Appointment Reservations</h2>
+              <p className="text-xs text-slate-500 mt-0.5">Real-time appointments dispatched to rikinp0102@gmail.com.</p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
               {["All", "Confirmed", "Pending", "Completed", "Cancelled"].map((st) => (
                 <button
                   key={st}
                   onClick={() => setStatusFilter(st)}
-                  className={`px-3 py-1 text-xs font-bold rounded-lg border transition-all ${
+                  className={`px-2.5 py-1 text-[11px] sm:text-xs font-bold rounded-lg border transition-all ${
                     statusFilter === st
                       ? "bg-secondary text-white border-secondary"
                       : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
@@ -508,7 +555,83 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* MOBILE CARDS VIEW (For small screens) */}
+          <div className="block lg:hidden space-y-3">
+            {bookings.length === 0 ? (
+              <div className="p-6 text-center text-slate-500 text-xs bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                No booking records found for filter "{statusFilter}".
+              </div>
+            ) : (
+              bookings.map((b) => (
+                <div key={b.id} className="p-4 bg-white border border-slate-200 rounded-xl shadow-sm space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <span className="font-mono font-bold text-xs text-primary bg-slate-100 px-2 py-0.5 rounded">
+                      {b.reference_id}
+                    </span>
+                    <select
+                      value={b.status}
+                      onChange={(e) => handleStatusChange(b.id, e.target.value)}
+                      className={`text-xs font-bold px-2.5 py-1 rounded-full border focus:outline-none ${
+                        b.status === "Confirmed"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-300"
+                          : b.status === "Pending"
+                          ? "bg-amber-50 text-amber-700 border-amber-300"
+                          : b.status === "Completed"
+                          ? "bg-blue-50 text-blue-700 border-blue-300"
+                          : "bg-red-50 text-red-700 border-red-300"
+                      }`}
+                    >
+                      <option value="Pending">Pending</option>
+                      <option value="Confirmed">Confirmed</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block">Client</span>
+                      <div className="font-semibold text-slate-900">{b.client_name}</div>
+                      <div className="text-[11px] text-slate-500 truncate">{b.client_phone || b.client_email}</div>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block">Vehicle</span>
+                      <div className="font-medium text-slate-800">
+                        {b.year} {b.make} <span className="font-bold text-primary">{b.model}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-slate-100">
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block">Service</span>
+                      <div className="font-medium text-slate-700">{b.service_name}</div>
+                      <div className="font-bold text-secondary">{b.price_inr}</div>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block">Date & Time</span>
+                      <div className="text-slate-700 font-medium">{b.date}</div>
+                      <div className="text-slate-400 text-[11px]">{b.time_slot}</div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-1">
+                    <button
+                      onClick={() => handleDeleteBooking(b.id)}
+                      className="px-2.5 py-1 text-xs text-red-600 bg-red-50 hover:bg-red-100 rounded-lg font-semibold flex items-center gap-1 transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* DESKTOP TABLE VIEW (For larger screens) */}
+          <div className="hidden lg:block overflow-x-auto rounded-xl border border-slate-200">
             <table className="w-full text-left text-sm border-collapse">
               <thead>
                 <tr className="bg-slate-100 text-slate-700 uppercase text-[11px] font-bold tracking-wider border-b border-slate-200">
@@ -1049,6 +1172,130 @@ export default function AdminDashboardPage() {
                   </div>
                   <div className="p-3 bg-slate-50 rounded-lg text-xs text-slate-800 leading-relaxed font-mono whitespace-pre-wrap">
                     {c.message}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </Card>
+      )}
+
+      {/* TAB 7: ADMIN USERS MANAGEMENT */}
+      {activeTab === "users" && (
+        <Card className="p-4 sm:p-6 border border-slate-200 space-y-6 rounded-2xl">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h2 className="font-heading text-lg sm:text-xl font-extrabold text-primary">Admin Dashboard Users</h2>
+              <p className="text-xs text-slate-500 mt-0.5">Owners can register new admin users with email, password & 2-step OTP security verification.</p>
+            </div>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => setShowAddUser(!showAddUser)}
+              className="flex items-center justify-center gap-2 bg-secondary hover:bg-secondary-dark text-on-secondary py-2 px-4 rounded-xl text-xs font-bold shadow-md"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Add New Admin User</span>
+            </Button>
+          </div>
+
+          {/* ADD NEW ADMIN USER FORM */}
+          {showAddUser && (
+            <form onSubmit={handleCreateAdminUser} className="p-4 sm:p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-4 shadow-inner">
+              <div className="flex items-center gap-2 text-secondary font-bold text-xs uppercase tracking-wider">
+                <UserPlus className="w-4 h-4" />
+                <span>Register New Admin Account</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">Username *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. javed_mgr"
+                    value={newUser.username}
+                    onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                    className="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-xs focus:border-secondary focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">Email Address (For OTP) *</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="e.g. manager@kbgarage.com"
+                    value={newUser.email}
+                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                    className="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-xs focus:border-secondary focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">Password *</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="••••••••"
+                    value={newUser.password}
+                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                    className="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-xs focus:border-secondary focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <p className="text-[11px] text-slate-500 italic">
+                * Note: When the new user logs into the Admin Dashboard, a 6-digit Security OTP code will automatically be dispatched to their email address.
+              </p>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-200">
+                <Button variant="outline" size="sm" type="button" onClick={() => setShowAddUser(false)} className="rounded-xl text-xs">
+                  Cancel
+                </Button>
+                <Button variant="primary" size="sm" type="submit" className="bg-secondary text-white rounded-xl text-xs font-bold">
+                  Create Admin User
+                </Button>
+              </div>
+            </form>
+          )}
+
+          {/* ADMIN USERS LIST / CARDS */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {adminUsers.length === 0 ? (
+              <div className="col-span-full p-8 text-center text-slate-500 text-xs bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                No extra admin users registered yet. Click "Add New Admin User" above to create one.
+              </div>
+            ) : (
+              adminUsers.map((u) => (
+                <div key={u.id} className="p-4 bg-white border border-slate-200 rounded-2xl shadow-sm space-y-3 flex flex-col justify-between">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-900 text-sm">{u.username}</span>
+                        {u.username === "admin" && (
+                          <Badge variant="secondary" className="text-[10px]">Owner / Root</Badge>
+                        )}
+                      </div>
+                      <div className="text-xs text-slate-600 font-medium">{u.email}</div>
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-secondary shrink-0">
+                      <ShieldCheck className="w-4 h-4" />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px] text-slate-400">
+                    <span>Joined: {new Date(u.date_joined).toLocaleDateString()}</span>
+                    {u.username !== "admin" && (
+                      <button
+                        onClick={() => handleDeleteAdminUser(u.id)}
+                        className="p-1 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-1 font-semibold"
+                        title="Remove Admin User"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Remove</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               ))

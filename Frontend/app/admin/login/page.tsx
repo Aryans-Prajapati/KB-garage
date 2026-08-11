@@ -122,8 +122,8 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-12 px-margin-mobile">
-      <Card className="w-full max-w-md p-8 shadow-2xl border border-slate-200">
+    <div className="min-h-[85vh] flex items-center justify-center py-8 sm:py-12 px-4 sm:px-6">
+      <Card className="w-full max-w-md p-5 sm:p-8 shadow-2xl border border-slate-200 rounded-2xl">
         <div className="text-center space-y-3 mb-6">
           <div className="relative w-16 h-16 mx-auto mb-2">
             <Image

@@ -41,7 +41,7 @@ export function Stepper({ steps, currentStep, onStepClick }: StepperProps) {
             >
               <div
                 className={cn(
-                  "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2",
+                  "w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all duration-300 border-2 shrink-0",
                   isCompleted &&
                   "bg-tertiary border-tertiary text-white shadow-sm",
                   isActive &&
@@ -51,11 +51,11 @@ export function Stepper({ steps, currentStep, onStepClick }: StepperProps) {
                   "bg-surface-container-lowest border-outline-variant text-on-surface-variant group-hover:border-secondary/50"
                 )}
               >
-                {isCompleted ? <Check className="w-5 h-5" /> : step.id}
+                {isCompleted ? <Check className="w-4 h-4 sm:w-5 sm:h-5" /> : step.id}
               </div>
               <span
                 className={cn(
-                  "mt-2 text-xs font-semibold uppercase tracking-wider transition-colors",
+                  "mt-1.5 text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-center transition-colors max-w-[65px] sm:max-w-none leading-tight",
                   isActive && "text-secondary font-bold",
                   isCompleted && "text-tertiary",
                   !isCompleted && !isActive && "text-on-surface-variant"
