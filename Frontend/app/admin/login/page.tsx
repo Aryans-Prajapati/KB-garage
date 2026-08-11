@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Lock, User, ShieldCheck, ArrowRight, Mail, KeyRound, CheckCircle2, ShieldAlert } from "lucide-react";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { adminLogin, verifyLoginOtpApi, requestForgotPassword, resetAdminPasswordWithOtp } from "@/lib/api";
 
-export default function AdminLoginPage() {
+function AdminLoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -415,3 +415,30 @@ export default function AdminLoginPage() {
     </div>
   );
 }
+
+function AdminLoginFallback() {
+  return (
+    <div className="min-h-[85vh] flex items-center justify-center py-8 sm:py-12 px-4 sm:px-6">
+      <Card className="w-full max-w-md p-5 sm:p-8 shadow-2xl border border-slate-200 rounded-2xl flex flex-col items-center justify-center min-h-[300px]">
+        <div className="relative w-16 h-16 mx-auto mb-4 animate-pulse">
+          <Image
+            src="/logo.svg"
+            alt="KB Garage Logo"
+            fill
+            className="object-contain drop-shadow-[0_4px_12px_rgba(212,175,55,0.4)]"
+          />
+        </div>
+        <p className="text-sm font-medium text-slate-500">Loading Owner Portal...</p>
+      </Card>
+    </div>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={<AdminLoginFallback />}>
+      <AdminLoginContent />
+    </Suspense>
+  );
+}
+
