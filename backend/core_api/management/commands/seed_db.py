@@ -13,7 +13,7 @@ class Command(BaseCommand):
         admin_user, created = User.objects.get_or_create(
             username='admin',
             defaults={
-                'email': 'rikinp0102@gmail.com',
+                'email': 'Kbgarage46@gmail.com',
                 'is_staff': True,
                 'is_superuser': True
             }

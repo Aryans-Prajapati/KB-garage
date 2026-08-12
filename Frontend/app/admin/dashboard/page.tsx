@@ -271,8 +271,10 @@ export default function AdminDashboardPage() {
         await deleteBookingApi(token, bookingId);
       }
       setBookings((prev) => prev.filter((b) => b.id !== bookingId));
-    } catch (err) {
-      alert("Failed to delete booking");
+      alert("Booking deleted successfully.");
+      if (token) fetchDashboardStats(token).then(setStats);
+    } catch (err: any) {
+      alert(err.message || "Failed to delete booking");
     }
   };
 
@@ -283,11 +285,12 @@ export default function AdminDashboardPage() {
       if (token) {
         const res = await createServiceApi(token, newService);
         setServices((prev) => [res, ...prev]);
+        fetchDashboardStats(token).then(setStats);
       }
       setShowAddService(false);
       alert("Service created successfully!");
-    } catch (err) {
-      alert("Failed to create service");
+    } catch (err: any) {
+      alert(err.message || "Failed to create service");
     }
   };
 
@@ -301,8 +304,8 @@ export default function AdminDashboardPage() {
       }
       setEditingService(null);
       alert("Service updated successfully!");
-    } catch (err) {
-      alert("Failed to update service");
+    } catch (err: any) {
+      alert(err.message || "Failed to update service");
     }
   };
 
@@ -313,8 +316,10 @@ export default function AdminDashboardPage() {
         await deleteServiceApi(token, serviceId);
       }
       setServices((prev) => prev.filter((s) => s.id !== serviceId));
-    } catch (err) {
-      alert("Failed to delete service");
+      alert("Service removed successfully.");
+      if (token) fetchDashboardStats(token).then(setStats);
+    } catch (err: any) {
+      alert(err.message || "Failed to delete service");
     }
   };
 
@@ -325,11 +330,12 @@ export default function AdminDashboardPage() {
       if (token) {
         const res = await createGalleryItemApi(token, newGallery);
         setGallery((prev) => [res, ...prev]);
+        fetchDashboardStats(token).then(setStats);
       }
       setShowAddGallery(false);
       alert("Gallery project added successfully!");
-    } catch (err) {
-      alert("Failed to add gallery project");
+    } catch (err: any) {
+      alert(err.message || "Failed to add gallery project");
     }
   };
 
@@ -343,8 +349,8 @@ export default function AdminDashboardPage() {
       }
       setEditingGallery(null);
       alert("Gallery project updated successfully!");
-    } catch (err) {
-      alert("Failed to update gallery item");
+    } catch (err: any) {
+      alert(err.message || "Failed to update gallery item");
     }
   };
 
@@ -355,8 +361,10 @@ export default function AdminDashboardPage() {
         await deleteGalleryItemApi(token, id);
       }
       setGallery((prev) => prev.filter((g) => g.id !== id));
-    } catch (err) {
-      alert("Failed to delete gallery item");
+      alert("Gallery item deleted.");
+      if (token) fetchDashboardStats(token).then(setStats);
+    } catch (err: any) {
+      alert(err.message || "Failed to delete gallery item");
     }
   };
 
@@ -367,11 +375,12 @@ export default function AdminDashboardPage() {
       if (token) {
         const res = await createBlogPostApi(token, newBlog);
         setBlogs((prev) => [res, ...prev]);
+        fetchDashboardStats(token).then(setStats);
       }
       setShowAddBlog(false);
       alert("Blog post created!");
-    } catch (err) {
-      alert("Failed to create blog post");
+    } catch (err: any) {
+      alert(err.message || "Failed to create blog post");
     }
   };
 
@@ -385,8 +394,8 @@ export default function AdminDashboardPage() {
       }
       setEditingBlog(null);
       alert("Blog post updated!");
-    } catch (err) {
-      alert("Failed to update blog post");
+    } catch (err: any) {
+      alert(err.message || "Failed to update blog post");
     }
   };
 
@@ -397,8 +406,10 @@ export default function AdminDashboardPage() {
         await deleteBlogPostApi(token, id);
       }
       setBlogs((prev) => prev.filter((b) => b.id !== id));
-    } catch (err) {
-      alert("Failed to delete blog post");
+      alert("Blog article deleted.");
+      if (token) fetchDashboardStats(token).then(setStats);
+    } catch (err: any) {
+      alert(err.message || "Failed to delete blog post");
     }
   };
 
@@ -409,11 +420,12 @@ export default function AdminDashboardPage() {
       if (token) {
         const res = await createReviewApi(token, newReview);
         setReviews((prev) => [res, ...prev]);
+        fetchDashboardStats(token).then(setStats);
       }
       setShowAddReview(false);
       alert("Customer review added!");
-    } catch (err) {
-      alert("Failed to add review");
+    } catch (err: any) {
+      alert(err.message || "Failed to add review");
     }
   };
 
@@ -427,8 +439,8 @@ export default function AdminDashboardPage() {
       }
       setEditingReview(null);
       alert("Review updated!");
-    } catch (err) {
-      alert("Failed to update review");
+    } catch (err: any) {
+      alert(err.message || "Failed to update review");
     }
   };
 
@@ -439,8 +451,10 @@ export default function AdminDashboardPage() {
         await deleteReviewApi(token, id);
       }
       setReviews((prev) => prev.filter((r) => r.id !== id));
-    } catch (err) {
-      alert("Failed to delete review");
+      alert("Review deleted.");
+      if (token) fetchDashboardStats(token).then(setStats);
+    } catch (err: any) {
+      alert(err.message || "Failed to delete review");
     }
   };
 
@@ -452,8 +466,10 @@ export default function AdminDashboardPage() {
         await deleteContactMessageApi(token, id);
       }
       setContacts((prev) => prev.filter((c) => c.id !== id));
-    } catch (err) {
-      alert("Failed to delete contact message");
+      alert("Contact message deleted.");
+      if (token) fetchDashboardStats(token).then(setStats);
+    } catch (err: any) {
+      alert(err.message || "Failed to delete contact message");
     }
   };
 

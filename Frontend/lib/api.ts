@@ -225,8 +225,19 @@ export async function deleteBookingApi(token: string, bookingId: number) {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Failed to delete booking");
-  return await res.json();
+  if (!res.ok) {
+    let detail = "Failed to delete booking";
+    try {
+      const data = await res.json();
+      detail = data.detail || detail;
+    } catch (e) {}
+    throw new Error(detail);
+  }
+  try {
+    return await res.json();
+  } catch (e) {
+    return { success: true };
+  }
 }
 
 export async function createServiceApi(token: string, data: any) {
@@ -260,8 +271,19 @@ export async function deleteServiceApi(token: string, serviceId: number) {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Failed to delete service");
-  return await res.json();
+  if (!res.ok) {
+    let detail = "Failed to delete service";
+    try {
+      const data = await res.json();
+      detail = data.detail || detail;
+    } catch (e) {}
+    throw new Error(detail);
+  }
+  try {
+    return await res.json();
+  } catch (e) {
+    return { success: true };
+  }
 }
 
 // Gallery API
@@ -306,8 +328,19 @@ export async function deleteGalleryItemApi(token: string, itemId: number) {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Failed to delete gallery item");
-  return await res.json();
+  if (!res.ok) {
+    let detail = "Failed to delete gallery item";
+    try {
+      const data = await res.json();
+      detail = data.detail || detail;
+    } catch (e) {}
+    throw new Error(detail);
+  }
+  try {
+    return await res.json();
+  } catch (e) {
+    return { success: true };
+  }
 }
 
 // Blogs API
@@ -352,8 +385,19 @@ export async function deleteBlogPostApi(token: string, postId: number) {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Failed to delete blog post");
-  return await res.json();
+  if (!res.ok) {
+    let detail = "Failed to delete blog post";
+    try {
+      const data = await res.json();
+      detail = data.detail || detail;
+    } catch (e) {}
+    throw new Error(detail);
+  }
+  try {
+    return await res.json();
+  } catch (e) {
+    return { success: true };
+  }
 }
 
 // Reviews API
@@ -398,8 +442,19 @@ export async function deleteReviewApi(token: string, reviewId: number) {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Failed to delete review");
-  return await res.json();
+  if (!res.ok) {
+    let detail = "Failed to delete review";
+    try {
+      const data = await res.json();
+      detail = data.detail || detail;
+    } catch (e) {}
+    throw new Error(detail);
+  }
+  try {
+    return await res.json();
+  } catch (e) {
+    return { success: true };
+  }
 }
 
 // Contact Messages API
@@ -435,8 +490,19 @@ export async function deleteContactMessageApi(token: string, contactId: number) 
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Failed to delete contact message");
-  return await res.json();
+  if (!res.ok) {
+    let detail = "Failed to delete contact message";
+    try {
+      const data = await res.json();
+      detail = data.detail || detail;
+    } catch (e) {}
+    throw new Error(detail);
+  }
+  try {
+    return await res.json();
+  } catch (e) {
+    return { success: true };
+  }
 }
 
 export async function uploadImageApi(token: string, file: File): Promise<{ url: string }> {
@@ -495,7 +561,12 @@ export async function deleteAdminUser(token: string, userId: number) {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
-  const data = await res.json();
+  let data: any = {};
+  try {
+    data = await res.json();
+  } catch (e) {
+    data = {};
+  }
   if (!res.ok) throw new Error(data.detail || "Failed to delete admin user");
   return data;
 }

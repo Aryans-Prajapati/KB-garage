@@ -71,15 +71,15 @@ export function Footer() {
             <ul className="space-y-2.5 text-sm">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
-                <span>Apex Motors Complex, WE Highway, Andheri East, Mumbai, Maharashtra 400069</span>
+                <span>Near Seventh Parisar, Behind Jaguar Showroom, Sarkhej - Gandhinagar Highway, Gota, Ahmedabad, Gujarat 382481</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-secondary shrink-0" />
-                <span>+91 98765 43210</span>
+                <a href="tel:+917096777896" className="hover:text-secondary transition-colors">+91 70967 77896</a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-secondary shrink-0" />
-                <span>service@kbgarage.in</span>
+                <a href="mailto:Kbgarage46@gmail.com" className="hover:text-secondary transition-colors">Kbgarage46@gmail.com</a>
               </li>
             </ul>
 

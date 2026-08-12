@@ -305,11 +305,11 @@ export function TopNavBar() {
             </Link>
 
             <a
-              href="tel:+18005550199"
+              href="tel:+917096777896"
               className="flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 hover:text-slate-900 py-2 transition-colors"
             >
               <PhoneCall className="w-4 h-4 text-secondary" />
-              <span>Support: +1 (800) 555-0199</span>
+              <span>Support: +91 70967 77896</span>
             </a>
           </div>
         </div>

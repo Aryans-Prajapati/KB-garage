@@ -57,7 +57,7 @@ export default function ContactPage() {
               </div>
               <h3 className="font-heading text-2xl font-bold text-primary">Message Sent Successfully!</h3>
               <p className="text-sm text-on-surface-variant max-w-md mx-auto">
-                Thank you for contacting KB Garage. Your inquiry has been sent to our owner email (<span className="font-bold">rikinp0102@gmail.com</span>) and service team.
+                Thank you for contacting KB Garage. Your inquiry has been sent to our owner email (<span className="font-bold">Kbgarage46@gmail.com</span>) and service team.
               </p>
               <Button variant="outline" onClick={() => setSubmitted(false)}>
                 Send Another Message
@@ -103,7 +103,7 @@ export default function ContactPage() {
                   <label className="block text-xs font-bold uppercase text-on-surface-variant mb-1">Phone Number</label>
                   <input
                     type="tel"
-                    placeholder="+91 98765 43210"
+                    placeholder="+91 70967 77896"
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
                     className="w-full px-4 py-3 bg-surface-container-low border-b-2 border-outline-variant focus:border-secondary focus:outline-none rounded-sm text-sm"
@@ -154,7 +154,7 @@ export default function ContactPage() {
                 <MapPin className="w-5 h-5 text-secondary shrink-0 mt-1" />
                 <div>
                   <div className="font-bold text-primary">KB Garage HQ</div>
-                  <div className="text-on-surface-variant">104 Precision Drive, Apex Motors Complex, CA 90210</div>
+                  <div className="text-on-surface-variant">Near Seventh Parisar, Behind Jaguar Showroom, Sarkhej - Gandhinagar Highway, Gota, Ahmedabad, Gujarat 382481</div>
                 </div>
               </li>
 
@@ -162,7 +162,7 @@ export default function ContactPage() {
                 <Phone className="w-5 h-5 text-secondary shrink-0" />
                 <div>
                   <div className="font-bold text-primary">Customer Line</div>
-                  <div className="text-on-surface-variant">+1 (800) 555-0199</div>
+                  <a href="tel:+917096777896" className="text-on-surface-variant hover:text-secondary transition-colors">+91 70967 77896</a>
                 </div>
               </li>
 
@@ -170,7 +170,7 @@ export default function ContactPage() {
                 <Mail className="w-5 h-5 text-secondary shrink-0" />
                 <div>
                   <div className="font-bold text-primary">Service Email</div>
-                  <div className="text-on-surface-variant">service@kbgarage.com</div>
+                  <a href="mailto:Kbgarage46@gmail.com" className="text-on-surface-variant hover:text-secondary transition-colors">Kbgarage46@gmail.com</a>
                 </div>
               </li>
             </ul>
@@ -184,7 +184,7 @@ export default function ContactPage() {
                 <span>Garage Location Map</span>
               </div>
               <a
-                href="https://maps.google.com/?q=Apex+Motors+Complex+CA+90210"
+                href="https://maps.app.goo.gl/B9AzzUtZB74W6vB58"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[11px] font-semibold text-secondary hover:underline flex items-center gap-1"
@@ -194,10 +194,10 @@ export default function ContactPage() {
               </a>
             </div>
 
-            <div className="w-full h-52 rounded-lg overflow-hidden border border-slate-200 relative bg-slate-100">
+            <div className="w-full h-56 rounded-lg overflow-hidden border border-slate-200 relative bg-slate-100 shadow-inner">
               <iframe
-                title="KB Garage Location Map"
-                src="https://maps.google.com/maps?q=Apex+Motors+Complex+CA+90210&t=&z=14&ie=UTF8&iwloc=&output=embed"
+                title="KB Garage Exact Location Map"
+                src="https://maps.google.com/maps?q=23.1072533,72.5408914+(KB+Garage+-+Car+Repair+%26+Service)&t=&z=17&ie=UTF8&iwloc=B&output=embed"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -207,8 +207,8 @@ export default function ContactPage() {
                 className="w-full h-full"
               />
             </div>
-            <p className="text-xs text-on-surface-variant">
-              Temporary location preview. You can update the map coordinates or embed link at any time.
+            <p className="text-xs text-on-surface-variant font-medium">
+              📍 KB Garage - Car Repair & Service • Gota, Ahmedabad (23.1072533, 72.5408914)
             </p>
           </Card>
         </div>

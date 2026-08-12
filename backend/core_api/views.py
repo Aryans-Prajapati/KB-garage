@@ -154,13 +154,13 @@ class AdminLoginView(APIView):
                 except User.DoesNotExist:
                     pass
 
-            if not user and (username_or_email in ['admin', 'admin@kbgarage.in', 'rikinp0102@gmail.com']) and password == 'admin123':
-                user, created = User.objects.get_or_create(username='admin', defaults={'email': 'rikinp0102@gmail.com', 'is_staff': True, 'is_superuser': True})
+            if not user and (username_or_email in ['admin', 'admin@kbgarage.in', 'rikinp0102@gmail.com', 'kbgarage46@gmail.com']) and password == 'admin123':
+                user, created = User.objects.get_or_create(username='admin', defaults={'email': 'Kbgarage46@gmail.com', 'is_staff': True, 'is_superuser': True})
                 user.set_password('admin123')
                 user.save()
 
-            if user or (username_or_email in ['admin', 'admin@kbgarage.in', 'rikinp0102@gmail.com'] and password == 'admin123'):
-                target_email = user.email if (user and user.email) else 'rikinp0102@gmail.com'
+            if user or (username_or_email in ['admin', 'admin@kbgarage.in', 'rikinp0102@gmail.com', 'kbgarage46@gmail.com'] and password == 'admin123'):
+                target_email = user.email if (user and user.email) else 'Kbgarage46@gmail.com'
                 
                 # Generate 6-digit Security OTP
                 otp_code = str(random.randint(100000, 999999))

@@ -4,7 +4,7 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-OWNER_EMAIL = getattr(settings, 'OWNER_NOTIFICATION_EMAIL', 'rikinp0102@gmail.com')
+OWNER_EMAIL = getattr(settings, 'OWNER_NOTIFICATION_EMAIL', 'Kbgarage46@gmail.com')
 
 
 def _dispatch_email(subject, plain_message, html_message, recipient_list):

@@ -15,10 +15,10 @@ function AdminLoginContent() {
   const [mode, setMode] = useState<"login" | "login_otp" | "forgot" | "reset_otp">("login");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [targetEmail, setTargetEmail] = useState("rikinp0102@gmail.com");
+  const [targetEmail, setTargetEmail] = useState("Kbgarage46@gmail.com");
   const [loginOtpCode, setLoginOtpCode] = useState("");
   
-  const [forgotEmail, setForgotEmail] = useState("rikinp0102@gmail.com");
+  const [forgotEmail, setForgotEmail] = useState("Kbgarage46@gmail.com");
   const [resetOtpCode, setResetOtpCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
