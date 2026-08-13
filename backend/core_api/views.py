@@ -1,6 +1,10 @@
 import uuid
 import os
 import random
+import secrets
+import re
+from datetime import timedelta
+from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -19,8 +23,9 @@ from .serializers import (
 )
 from .utils import (
     send_booking_notification_email, send_contact_notification_email,
-    send_forgot_password_email, send_otp_email
+    send_forgot_password_email, send_otp_email, hash_otp
 )
+
 
 
 class AdminUserManageView(APIView):
@@ -161,18 +166,36 @@ class AdminLoginView(APIView):
 
             if user or (username_or_email in ['admin', 'admin@kbgarage.in', 'rikinp0102@gmail.com', 'kbgarage46@gmail.com'] and password == 'admin123'):
                 target_email = user.email if (user and user.email) else 'Kbgarage46@gmail.com'
-                
-                # Generate 6-digit Security OTP
-                otp_code = str(random.randint(100000, 999999))
-                AdminOTP.objects.create(email=target_email, otp_code=otp_code, purpose='login')
-                
-                # Send OTP via email
+
+                # Enforce 60-second OTP resend cooldown
+                cooldown_seconds = getattr(settings, 'OTP_RESEND_COOLDOWN', 60)
+                recent_otp = AdminOTP.objects.filter(
+                    email__iexact=target_email,
+                    purpose='login',
+                    created_at__gte=timezone.now() - timedelta(seconds=cooldown_seconds)
+                ).first()
+                if recent_otp:
+                    return Response({
+                        'require_otp': True,
+                        'email': target_email,
+                        'detail': f'An OTP was recently generated. Please wait {cooldown_seconds} seconds before requesting another.'
+                    }, status=status.HTTP_200_OK)
+
+                # Invalidate prior unused login OTPs
+                AdminOTP.objects.filter(email__iexact=target_email, purpose='login', is_used=False).update(is_used=True)
+
+                # Generate cryptographically secure 6-digit OTP
+                otp_code = f"{secrets.randbelow(1000000):06d}"
+                hashed_otp = hash_otp(otp_code)
+                AdminOTP.objects.create(email=target_email, otp_code=hashed_otp, purpose='login')
+
+                # Dispatch OTP via email
                 send_otp_email(target_email, otp_code, purpose='login')
 
                 return Response({
                     'require_otp': True,
                     'email': target_email,
-                    'detail': f'Password verified! A 6-digit OTP code has been sent to {target_email}.'
+                    'detail': f'Credentials verified! A 6-digit verification OTP code has been sent to {target_email}.'
                 }, status=status.HTTP_200_OK)
 
             return Response({'detail': 'Invalid username or password. Please try again.'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -187,19 +210,45 @@ class AdminVerifyLoginOTPView(APIView):
             email = serializer.validated_data['email'].strip().lower()
             otp_code = serializer.validated_data['otp_code'].strip()
 
-            otp_qs = AdminOTP.objects.filter(email__iexact=email, otp_code=otp_code, purpose='login', is_used=False)
-            if otp_qs.exists():
-                otp_obj = otp_qs.first()
+            expiry_seconds = getattr(settings, 'OTP_EXPIRY_SECONDS', 300)
+            max_attempts = getattr(settings, 'OTP_MAX_ATTEMPTS', 5)
+            cutoff_time = timezone.now() - timedelta(seconds=expiry_seconds)
+
+            otp_obj = AdminOTP.objects.filter(
+                email__iexact=email,
+                purpose='login',
+                is_used=False,
+                created_at__gte=cutoff_time
+            ).order_by('-created_at').first()
+
+            if not otp_obj:
+                return Response({'detail': 'Invalid or expired OTP code. Please request a new OTP.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if otp_obj.attempts >= max_attempts:
                 otp_obj.is_used = True
                 otp_obj.save()
+                return Response({'detail': 'Maximum failed OTP attempts reached. This OTP is invalidated. Please request a new OTP.'}, status=status.HTTP_400_BAD_REQUEST)
 
-                return Response({
-                    'access_token': f"kb_admin_session_token_{uuid.uuid4().hex}",
-                    'token_type': 'bearer',
-                    'email': email
-                }, status=status.HTTP_200_OK)
+            hashed_input = hash_otp(otp_code)
+            if otp_obj.otp_code != hashed_input:
+                otp_obj.attempts += 1
+                if otp_obj.attempts >= max_attempts:
+                    otp_obj.is_used = True
+                    otp_obj.save()
+                    return Response({'detail': 'Maximum failed OTP attempts reached. This OTP has been invalidated.'}, status=status.HTTP_400_BAD_REQUEST)
+                otp_obj.save()
+                remaining = max_attempts - otp_obj.attempts
+                return Response({'detail': f'Invalid OTP code. {remaining} attempt(s) remaining.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            return Response({'detail': 'Invalid or expired OTP code. Please check your email and enter the correct code.'}, status=status.HTTP_400_BAD_REQUEST)
+            # OTP verified successfully!
+            otp_obj.is_used = True
+            otp_obj.save()
+
+            return Response({
+                'access_token': f"kb_admin_session_token_{uuid.uuid4().hex}",
+                'token_type': 'bearer',
+                'email': email
+            }, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -209,17 +258,30 @@ class AdminForgotPasswordView(APIView):
         serializer = ForgotPasswordSerializer(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data['email'].strip().lower()
-            
-            # Generate 6-digit Reset OTP
-            otp_code = str(random.randint(100000, 999999))
-            AdminOTP.objects.create(email=email, otp_code=otp_code, purpose='reset')
-            
-            send_otp_email(email, otp_code, purpose='reset')
+
+            # Check if an admin user exists with this email address
+            user_exists = User.objects.filter(email__iexact=email).exists() or User.objects.filter(username__iexact=email).exists()
+
+            if not user_exists:
+                return Response({'detail': 'No registered Admin user found with this email address.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            cooldown_seconds = getattr(settings, 'OTP_RESEND_COOLDOWN', 60)
+            recent_otp = AdminOTP.objects.filter(
+                email__iexact=email,
+                purpose='reset',
+                created_at__gte=timezone.now() - timedelta(seconds=cooldown_seconds)
+            ).first()
+
+            if not recent_otp:
+                AdminOTP.objects.filter(email__iexact=email, purpose='reset', is_used=False).update(is_used=True)
+                otp_code = f"{secrets.randbelow(1000000):06d}"
+                AdminOTP.objects.create(email=email, otp_code=hash_otp(otp_code), purpose='reset')
+                send_otp_email(email, otp_code, purpose='reset')
 
             return Response({
                 'require_otp': True,
                 'email': email,
-                'detail': f'A password reset OTP code has been sent to {email}.'
+                'detail': f'A password reset verification OTP has been sent to {email}.'
             }, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -237,28 +299,96 @@ class AdminResetPasswordView(APIView):
             if new_password != confirm_password:
                 return Response({'detail': 'New password and confirm password do not match.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            otp_qs = AdminOTP.objects.filter(email__iexact=email, otp_code=otp_code, purpose='reset', is_used=False)
-            if otp_qs.exists():
-                otp_obj = otp_qs.first()
+            if len(new_password) < 8:
+                return Response({'detail': 'Password must be at least 8 characters long.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if not re.search(r'[A-Z]', new_password) or not re.search(r'[a-z]', new_password) or not re.search(r'[0-9]', new_password):
+                return Response({'detail': 'Password must contain at least one uppercase letter, one lowercase letter, and one number.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            expiry_seconds = getattr(settings, 'OTP_EXPIRY_SECONDS', 300)
+            max_attempts = getattr(settings, 'OTP_MAX_ATTEMPTS', 5)
+            cutoff_time = timezone.now() - timedelta(seconds=expiry_seconds)
+
+            otp_obj = AdminOTP.objects.filter(
+                email__iexact=email,
+                purpose='reset',
+                is_used=False,
+                created_at__gte=cutoff_time
+            ).order_by('-created_at').first()
+
+            if not otp_obj:
+                return Response({'detail': 'Invalid or expired reset OTP code.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if otp_obj.attempts >= max_attempts:
                 otp_obj.is_used = True
                 otp_obj.save()
+                return Response({'detail': 'Maximum failed OTP attempts reached. Please request a new reset OTP.'}, status=status.HTTP_400_BAD_REQUEST)
 
-                # Update passwords
-                admin_users = User.objects.filter(is_staff=True) | User.objects.filter(email__iexact=email)
-                for u in admin_users:
-                    u.set_password(new_password)
-                    u.save()
+            hashed_input = hash_otp(otp_code)
+            if otp_obj.otp_code != hashed_input:
+                otp_obj.attempts += 1
+                if otp_obj.attempts >= max_attempts:
+                    otp_obj.is_used = True
+                    otp_obj.save()
+                    return Response({'detail': 'Maximum failed OTP attempts reached.'}, status=status.HTTP_400_BAD_REQUEST)
+                otp_obj.save()
+                remaining = max_attempts - otp_obj.attempts
+                return Response({'detail': f'Invalid OTP code. {remaining} attempt(s) remaining.'}, status=status.HTTP_400_BAD_REQUEST)
 
-                if not admin_users.exists():
-                    u, _ = User.objects.get_or_create(username='admin', defaults={'email': email, 'is_staff': True, 'is_superuser': True})
-                    u.set_password(new_password)
-                    u.save()
+            # OTP verified for password reset!
+            otp_obj.is_used = True
+            otp_obj.save()
 
-                return Response({'detail': 'Password updated successfully! You can now log in with your new password.'}, status=status.HTTP_200_OK)
+            # Update passwords securely for matching admin users
+            admin_users = User.objects.filter(is_staff=True) | User.objects.filter(email__iexact=email)
+            for u in admin_users:
+                u.set_password(new_password)
+                u.save()
 
-            return Response({'detail': 'Invalid or expired OTP code. Please check your email.'}, status=status.HTTP_400_BAD_REQUEST)
+            if not admin_users.exists():
+                u, _ = User.objects.get_or_create(username='admin', defaults={'email': email, 'is_staff': True, 'is_superuser': True})
+                u.set_password(new_password)
+                u.save()
+
+            return Response({'detail': 'Password updated successfully! Please login with your new password.'}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AdminResendOTPView(APIView):
+    def post(self, request):
+        email = request.data.get('email', '').strip().lower()
+        purpose = request.data.get('purpose', 'login').strip().lower()
+
+        if not email:
+            return Response({'detail': 'Email address is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if purpose not in ['login', 'reset']:
+            return Response({'detail': 'Invalid purpose parameter.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if purpose == 'reset':
+            user_exists = User.objects.filter(email__iexact=email).exists() or User.objects.filter(username__iexact=email).exists()
+            if not user_exists:
+                return Response({'detail': 'No registered Admin user found with this email address.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        cooldown_seconds = getattr(settings, 'OTP_RESEND_COOLDOWN', 60)
+        recent_otp = AdminOTP.objects.filter(
+            email__iexact=email,
+            purpose=purpose,
+            created_at__gte=timezone.now() - timedelta(seconds=cooldown_seconds)
+        ).first()
+
+        if recent_otp:
+            return Response({'detail': f'Please wait {cooldown_seconds} seconds before requesting another OTP.'}, status=status.HTTP_429_TOO_MANY_REQUESTS)
+
+        # Invalidate prior OTPs and send new
+        AdminOTP.objects.filter(email__iexact=email, purpose=purpose, is_used=False).update(is_used=True)
+        otp_code = f"{secrets.randbelow(1000000):06d}"
+        AdminOTP.objects.create(email=email, otp_code=hash_otp(otp_code), purpose=purpose)
+        send_otp_email(email, otp_code, purpose=purpose)
+
+        return Response({'detail': f'A new 6-digit verification OTP has been sent to {email}.'}, status=status.HTTP_200_OK)
+
 
 
 class AdminStatsView(APIView):

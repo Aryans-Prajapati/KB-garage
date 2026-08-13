@@ -51,7 +51,7 @@ export default function BlogPage() {
   }, []);
 
   return (
-    <div className="py-12 space-y-16">
+    <div className="pb-16 space-y-16">
       {/* Header */}
       <section className="bg-primary text-white py-16 px-margin-mobile md:px-margin-desktop text-center">
         <div className="max-w-container-max mx-auto space-y-3">

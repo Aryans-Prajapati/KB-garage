@@ -1,14 +1,12 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Phone, Mail, MapPin, ShieldCheck, Instagram, Facebook, Twitter, Linkedin } from "lucide-react";
+import { Phone, Mail, MapPin, ShieldCheck, Instagram, Facebook } from "lucide-react";
 
 export function Footer() {
   const socialLinks = [
-    { name: "Instagram", href: "https://instagram.com", icon: Instagram },
-    { name: "Facebook", href: "https://facebook.com", icon: Facebook },
-    { name: "Twitter", href: "https://twitter.com", icon: Twitter },
-    { name: "LinkedIn", href: "https://linkedin.com", icon: Linkedin },
+    { name: "Instagram", href: "https://www.instagram.com/kbgaragegota?igsh=MTBzNWJlYmh4aHRuZw==", icon: Instagram },
+    { name: "Facebook", href: "https://www.facebook.com/share/19MzBynUWR/", icon: Facebook },
   ];
 
   return (

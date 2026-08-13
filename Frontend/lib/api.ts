@@ -1,5 +1,25 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
+function getErrorMessage(data: any, fallback: string): string {
+  if (!data) return fallback;
+  if (typeof data.detail === "string" && data.detail && data.detail !== "[object Event]") {
+    return data.detail;
+  }
+  if (typeof data.message === "string" && data.message && data.message !== "[object Event]") {
+    return data.message;
+  }
+  if (typeof data === "string" && data && data !== "[object Event]") {
+    return data;
+  }
+  if (typeof data === "object") {
+    try {
+      const values = Object.values(data).flat().filter((v) => typeof v === "string" && v !== "[object Event]");
+      if (values.length > 0) return values.join(" ");
+    } catch (e) {}
+  }
+  return fallback;
+}
+
 // Fallback Indian initial data with valid internet image URLs
 export const FALLBACK_SERVICES = [
   {
@@ -115,56 +135,121 @@ export async function createBooking(bookingData: {
 }
 
 export async function adminLogin(username: string, password: string) {
-  const res = await fetch(`${API_BASE_URL}/admin/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(data.detail || "Invalid username or password");
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    let data: any = {};
+    try {
+      data = await res.json();
+    } catch (e) {}
+    if (!res.ok) {
+      throw new Error(getErrorMessage(data, "Invalid username or password"));
+    }
+    return data;
+  } catch (err: any) {
+    if (err instanceof Error && err.message && err.message !== "[object Event]") {
+      throw err;
+    }
+    throw new Error("Invalid username or password");
   }
-  return data;
 }
 
 export async function verifyLoginOtpApi(email: string, otp_code: string) {
-  const res = await fetch(`${API_BASE_URL}/admin/verify-login-otp`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, otp_code }),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(data.detail || "Invalid OTP code");
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/verify-login-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, otp_code }),
+    });
+    let data: any = {};
+    try {
+      data = await res.json();
+    } catch (e) {}
+    if (!res.ok) {
+      throw new Error(getErrorMessage(data, "Invalid OTP code"));
+    }
+    return data;
+  } catch (err: any) {
+    if (err instanceof Error && err.message && err.message !== "[object Event]") {
+      throw err;
+    }
+    throw new Error("Invalid OTP code");
   }
-  return data;
+}
+
+export async function resendOtpApi(email: string, purpose: "login" | "reset" = "login") {
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/resend-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, purpose }),
+    });
+    let data: any = {};
+    try {
+      data = await res.json();
+    } catch (e) {}
+    if (!res.ok) {
+      throw new Error(getErrorMessage(data, "Failed to resend OTP code"));
+    }
+    return data;
+  } catch (err: any) {
+    if (err instanceof Error && err.message && err.message !== "[object Event]") {
+      throw err;
+    }
+    throw new Error("Failed to resend OTP code");
+  }
 }
 
 export async function requestForgotPassword(email: string) {
-  const res = await fetch(`${API_BASE_URL}/admin/forgot-password`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email }),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(data.detail || "Request failed");
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    let data: any = {};
+    try {
+      data = await res.json();
+    } catch (e) {}
+    if (!res.ok) {
+      throw new Error(getErrorMessage(data, "Request failed"));
+    }
+    return data;
+  } catch (err: any) {
+    if (err instanceof Error && err.message && err.message !== "[object Event]") {
+      throw err;
+    }
+    throw new Error("Request failed");
   }
-  return data;
 }
 
 export async function resetAdminPasswordWithOtp(email: string, otp_code: string, new_password: string, confirm_password: string) {
-  const res = await fetch(`${API_BASE_URL}/admin/reset-password`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, otp_code, new_password, confirm_password }),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(data.detail || "Reset failed");
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, otp_code, new_password, confirm_password }),
+    });
+    let data: any = {};
+    try {
+      data = await res.json();
+    } catch (e) {}
+    if (!res.ok) {
+      throw new Error(getErrorMessage(data, "Reset failed"));
+    }
+    return data;
+  } catch (err: any) {
+    if (err instanceof Error && err.message && err.message !== "[object Event]") {
+      throw err;
+    }
+    throw new Error("Reset failed");
   }
-  return data;
 }
+
+
 
 
 export async function fetchDashboardStats(token: string) {

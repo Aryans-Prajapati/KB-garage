@@ -128,8 +128,9 @@ class PasswordResetToken(models.Model):
 
 class AdminOTP(models.Model):
     email = models.EmailField()
-    otp_code = models.CharField(max_length=10)
+    otp_code = models.CharField(max_length=128)  # Holds SHA-256 hashed OTP
     purpose = models.CharField(max_length=50, default='login')  # 'login' or 'reset'
+    attempts = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     is_used = models.BooleanField(default=False)
 
@@ -137,4 +138,5 @@ class AdminOTP(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"OTP {self.otp_code} for {self.email} ({self.purpose})"
+        return f"OTP for {self.email} ({self.purpose})"
+

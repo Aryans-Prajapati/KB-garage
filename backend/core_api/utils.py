@@ -1,10 +1,17 @@
 import logging
+import hashlib
 from django.core.mail import send_mail, get_connection
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
 OWNER_EMAIL = getattr(settings, 'OWNER_NOTIFICATION_EMAIL', 'Kbgarage46@gmail.com')
+
+
+def hash_otp(code: str) -> str:
+    """Returns SHA-256 hash of plaintext OTP with project salt."""
+    secret_salt = getattr(settings, 'SECRET_KEY', 'kb_garage_default_salt')
+    return hashlib.sha256(f"{secret_salt}:{code}".encode('utf-8')).hexdigest()
 
 
 def _dispatch_email(subject, plain_message, html_message, recipient_list):
@@ -42,46 +49,39 @@ def _dispatch_email(subject, plain_message, html_message, recipient_list):
 
 
 def send_otp_email(email, otp_code, purpose='login'):
-    if purpose == 'login':
-        subject = f"[KB Garage Security] 2-Step Login Code: {otp_code}"
-        action_text = "Owner Admin Portal 2-Step Authentication"
-    else:
-        subject = f"[KB Garage Security] Password Reset OTP: {otp_code}"
-        action_text = "Owner Admin Password Reset"
+    subject = "KB Garage Admin Login" if purpose == 'login' else "KB Garage Admin Password Reset"
 
-    plain_message = f"""
-====================================================
-           KB GARAGE SECURITY VERIFICATION
-====================================================
+    plain_message = f"""KB Garage Admin Verification
 
-Your 6-Digit OTP Verification Code: {otp_code}
+Your verification OTP is: {otp_code}
 
-Requested for: {action_text} ({email})
-Please enter this code on the website to complete verification.
+This OTP is valid for 5 minutes.
 
-Do NOT share this code with anyone.
-====================================================
+If you did not attempt to log in to the KB Garage Admin Panel, please ignore this email.
 """
 
     html_message = f"""
-    <div style="font-family: Arial, Helvetica, sans-serif; max-width: 550px; border: 1px solid #cbd5e1; border-radius: 12px; overflow: hidden; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-      <div style="background-color: #0f172a; color: #ffffff; padding: 24px; text-align: center;">
-        <h2 style="margin: 0; font-size: 22px; font-weight: 800; letter-spacing: 2px; color: #ffffff;">KB GARAGE SECURITY</h2>
-        <p style="margin: 6px 0 0 0; color: #d4af37; font-size: 13px; font-weight: 700; text-transform: uppercase;">{action_text}</p>
+    <div style="font-family: Arial, sans-serif; max-width: 520px; border: 1px solid #cbd5e1; border-radius: 10px; overflow: hidden; margin: 0 auto; background-color: #ffffff;">
+      <div style="background-color: #0f172a; color: #ffffff; padding: 20px; text-align: center;">
+        <h2 style="margin: 0; font-size: 20px; font-weight: 800; color: #ffffff;">KB GARAGE ADMIN</h2>
+        <p style="margin: 4px 0 0 0; color: #d4af37; font-size: 12px; font-weight: 700; text-transform: uppercase;">
+          {'Admin Login OTP' if purpose == 'login' else 'Password Reset OTP'}
+        </p>
       </div>
-      <div style="padding: 28px; background-color: #ffffff; text-align: center;">
-        <p style="color: #475569; font-size: 14px; margin-top: 0;">Use the following 6-digit Security Verification Code to complete access:</p>
-        
-        <div style="margin: 24px 0; padding: 18px 24px; background-color: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; display: inline-block;">
-          <span style="font-size: 38px; font-weight: 900; letter-spacing: 8px; color: #ef4444; font-family: monospace;">{otp_code}</span>
+      <div style="padding: 24px; text-align: center;">
+        <p style="color: #475569; font-size: 14px; margin-top: 0;">Your verification OTP is:</p>
+        <div style="margin: 20px 0; padding: 14px 20px; background-color: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; display: inline-block;">
+          <span style="font-size: 34px; font-weight: 900; letter-spacing: 6px; color: #ef4444; font-family: monospace;">{otp_code}</span>
         </div>
-        
-        <p style="color: #64748b; font-size: 13px; margin-bottom: 0;">This code is valid for your account (<strong>{email}</strong>). Never disclose your OTP to anyone.</p>
+        <p style="color: #64748b; font-size: 13px;">This OTP is valid for 5 minutes.</p>
+        <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 20px 0;" />
+        <p style="color: #94a3b8; font-size: 12px; margin-bottom: 0;">If you did not attempt to log in to the KB Garage Admin Panel, please ignore this email.</p>
       </div>
     </div>
     """
 
     _dispatch_email(subject, plain_message, html_message, [email, OWNER_EMAIL])
+
 
 
 def send_booking_notification_email(booking):

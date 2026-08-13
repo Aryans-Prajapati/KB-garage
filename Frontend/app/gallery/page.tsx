@@ -84,7 +84,7 @@ export default function GalleryPage() {
     filter === "all" ? items : items.filter((item) => item.category === filter);
 
   return (
-    <div className="py-12 space-y-12">
+    <div className="pb-16 space-y-12">
       {/* Header */}
       <section className="bg-primary text-white py-16 px-margin-mobile md:px-margin-desktop text-center">
         <div className="max-w-container-max mx-auto space-y-3">

@@ -3,10 +3,10 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { Lock, User, ShieldCheck, ArrowRight, Mail, KeyRound, CheckCircle2, ShieldAlert } from "lucide-react";
+import { Lock, User, ShieldCheck, ArrowRight, Mail, KeyRound, CheckCircle2, ShieldAlert, Clock, RotateCcw, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { adminLogin, verifyLoginOtpApi, requestForgotPassword, resetAdminPasswordWithOtp } from "@/lib/api";
+import { adminLogin, verifyLoginOtpApi, requestForgotPassword, resetAdminPasswordWithOtp, resendOtpApi } from "@/lib/api";
 
 function AdminLoginContent() {
   const router = useRouter();
@@ -15,13 +15,18 @@ function AdminLoginContent() {
   const [mode, setMode] = useState<"login" | "login_otp" | "forgot" | "reset_otp">("login");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [targetEmail, setTargetEmail] = useState("Kbgarage46@gmail.com");
   const [loginOtpCode, setLoginOtpCode] = useState("");
-  
-  const [forgotEmail, setForgotEmail] = useState("Kbgarage46@gmail.com");
+
+  const [forgotEmail, setForgotEmail] = useState("");
   const [resetOtpCode, setResetOtpCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [otpTimer, setOtpTimer] = useState<number>(300); // 5-minute OTP validity timer
+  const [cooldownTimer, setCooldownTimer] = useState<number>(60); // 60-second resend cooldown
+  const [resendLoading, setResendLoading] = useState<boolean>(false);
 
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -34,7 +39,25 @@ function AdminLoginContent() {
     }
   }, [router]);
 
-  // Step 1: Submit Login Credentials -> Trigger 6-digit OTP to Email
+  // Handle countdown timers for 5-minute expiration & 60-second resend cooldown
+  useEffect(() => {
+    if (mode !== "login_otp" && mode !== "reset_otp") return;
+
+    const interval = setInterval(() => {
+      setOtpTimer((prev) => (prev > 0 ? prev - 1 : 0));
+      setCooldownTimer((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [mode]);
+
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  };
+
+  // Step 1: Submit Credentials -> Trigger 6-digit OTP to Email
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -43,8 +66,11 @@ function AdminLoginContent() {
     try {
       const data = await adminLogin(username, password);
       if (data.require_otp) {
-        setTargetEmail(data.email || "rikinp0102@gmail.com");
-        setSuccessMsg(data.detail || `Credentials verified! A 6-digit OTP code has been sent to ${data.email || 'rikinp0102@gmail.com'}.`);
+        const emailToUse = data.email || "Kbgarage46@gmail.com";
+        setTargetEmail(emailToUse);
+        setSuccessMsg(data.detail || `Credentials verified! A 6-digit OTP code has been sent to ${emailToUse}.`);
+        setOtpTimer(300);
+        setCooldownTimer(60);
         setMode("login_otp");
       } else if (data.access_token) {
         localStorage.setItem("kb_admin_token", data.access_token);
@@ -63,6 +89,13 @@ function AdminLoginContent() {
     setError("");
     setSuccessMsg("");
     setLoading(true);
+
+    if (otpTimer <= 0) {
+      setError("OTP has expired. Please click 'Resend OTP' to request a new code.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await verifyLoginOtpApi(targetEmail, loginOtpCode);
       if (data.access_token) {
@@ -85,7 +118,9 @@ function AdminLoginContent() {
     try {
       const res = await requestForgotPassword(forgotEmail);
       setTargetEmail(forgotEmail);
-      setSuccessMsg(res.detail || `A password reset OTP code has been sent to ${forgotEmail}.`);
+      setSuccessMsg(res.detail || `If an account associated with ${forgotEmail} exists, a verification OTP has been sent.`);
+      setOtpTimer(300);
+      setCooldownTimer(60);
       setMode("reset_otp");
     } catch (err: any) {
       setError(err.message || "Failed to send reset OTP");
@@ -100,6 +135,21 @@ function AdminLoginContent() {
     setError("");
     setSuccessMsg("");
 
+    if (otpTimer <= 0) {
+      setError("Reset OTP has expired. Please request a new code.");
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+
+    if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+      setError("Password must contain at least one uppercase letter, one lowercase letter, and one number.");
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       setError("New Password and Confirm Password do not match!");
       return;
@@ -108,16 +158,37 @@ function AdminLoginContent() {
     setLoading(true);
     try {
       const res = await resetAdminPasswordWithOtp(targetEmail, resetOtpCode, newPassword, confirmPassword);
-      setSuccessMsg(res.detail || "Password updated successfully! Please login with your new password.");
+      setSuccessMsg(res.detail || "Password reset successfully. Please login with your new password.");
       setTimeout(() => {
         setMode("login");
         setPassword("");
         setLoginOtpCode("");
-      }, 2000);
+        setResetOtpCode("");
+        setNewPassword("");
+        setConfirmPassword("");
+      }, 2500);
     } catch (err: any) {
       setError(err.message || "Failed to reset password. Please check your OTP code.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Resend OTP handler for both Login & Forgot Password flows
+  const handleResendOtp = async (purpose: "login" | "reset") => {
+    if (cooldownTimer > 0 || resendLoading) return;
+    setError("");
+    setSuccessMsg("");
+    setResendLoading(true);
+    try {
+      const res = await resendOtpApi(targetEmail, purpose);
+      setSuccessMsg(res.detail || "A new 6-digit verification OTP code has been sent to your email.");
+      setOtpTimer(300);
+      setCooldownTimer(60);
+    } catch (err: any) {
+      setError(err.message || "Failed to resend OTP code.");
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -170,10 +241,10 @@ function AdminLoginContent() {
                 <input
                   type="text"
                   required
-                  placeholder="admin or rikinp0102@gmail.com"
+                  placeholder="Username or Email"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-surface-container-low border-2 border-slate-300 focus:border-secondary focus:outline-none rounded-lg text-sm"
+                  className="w-full pl-10 pr-4 py-2.5 bg-surface-container-low border-2 border-slate-300 focus:border-secondary focus:outline-none rounded-lg text-sm text-slate-900 font-medium placeholder:text-slate-400"
                 />
               </div>
             </div>
@@ -198,13 +269,21 @@ function AdminLoginContent() {
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-surface-container-low border-2 border-slate-300 focus:border-secondary focus:outline-none rounded-lg text-sm"
+                  className="w-full pl-10 pr-10 py-2.5 bg-surface-container-low border-2 border-slate-300 focus:border-secondary focus:outline-none rounded-lg text-sm text-slate-900 font-medium placeholder:text-slate-400"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 focus:outline-none"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
@@ -228,6 +307,17 @@ function AdminLoginContent() {
               <div className="font-bold text-primary font-mono text-sm">{targetEmail}</div>
             </div>
 
+            {/* OTP Expiration Countdown Timer Banner */}
+            <div className="flex items-center justify-between text-xs font-semibold text-slate-600 bg-slate-100 p-2.5 rounded-lg border border-slate-200">
+              <div className="flex items-center gap-1.5 text-slate-700">
+                <Clock className="w-4 h-4 text-secondary" />
+                <span>OTP expires in:</span>
+              </div>
+              <span className={`font-mono font-bold ${otpTimer < 60 ? "text-red-600 animate-pulse" : "text-slate-900"}`}>
+                {formatTime(otpTimer)}
+              </span>
+            </div>
+
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
                 Enter 6-Digit Security OTP Code *
@@ -246,9 +336,33 @@ function AdminLoginContent() {
               </div>
             </div>
 
+            {/* Resend OTP Button with 60s Cooldown */}
+            <div className="flex items-center justify-between text-xs pt-1">
+              <span className="text-slate-500">Didn't receive the code?</span>
+              <button
+                type="button"
+                disabled={cooldownTimer > 0 || resendLoading}
+                onClick={() => handleResendOtp("login")}
+                className={`font-bold flex items-center gap-1 ${
+                  cooldownTimer > 0 || resendLoading
+                    ? "text-slate-400 cursor-not-allowed"
+                    : "text-secondary hover:underline cursor-pointer"
+                }`}
+              >
+                <RotateCcw className={`w-3.5 h-3.5 ${resendLoading ? "animate-spin" : ""}`} />
+                <span>
+                  {resendLoading
+                    ? "Resending..."
+                    : cooldownTimer > 0
+                    ? `Resend OTP (${cooldownTimer}s)`
+                    : "Resend OTP"}
+                </span>
+              </button>
+            </div>
+
             <Button
               type="submit"
-              disabled={loading || loginOtpCode.length < 6}
+              disabled={loading || loginOtpCode.length < 6 || otpTimer <= 0}
               variant="primary"
               className="w-full py-3 bg-secondary hover:bg-secondary-dark text-on-secondary font-bold uppercase tracking-wider flex items-center justify-center gap-2 mt-4"
             >
@@ -275,22 +389,22 @@ function AdminLoginContent() {
         {/* FORGOT PASSWORD STEP 1: REQUEST OTP */}
         {mode === "forgot" && (
           <form onSubmit={handleForgotPassword} className="space-y-4">
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Enter your registered owner email address below. We will send a 6-digit security OTP code to <strong className="text-primary">rikinp0102@gmail.com</strong>.
+            <p className="text-xs text-slate-600 leading-relaxed font-sans">
+              Enter your registered username or email address below. We will send a 6-digit security OTP code to verify your account.
             </p>
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-                Registered Email Address
+                Username or Email
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
+                <User className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
                 <input
-                  type="email"
+                  type="text"
                   required
-                  placeholder="rikinp0102@gmail.com"
+                  placeholder="Username or Email"
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-surface-container-low border-2 border-slate-300 focus:border-secondary focus:outline-none rounded-lg text-sm"
+                  className="w-full pl-10 pr-4 py-2.5 bg-surface-container-low border-2 border-slate-300 focus:border-secondary focus:outline-none rounded-lg text-sm text-slate-900 font-medium placeholder:text-slate-400"
                 />
               </div>
             </div>
@@ -329,6 +443,17 @@ function AdminLoginContent() {
               <div className="font-bold text-primary font-mono text-sm">{targetEmail}</div>
             </div>
 
+            {/* OTP Expiration Countdown Banner */}
+            <div className="flex items-center justify-between text-xs font-semibold text-slate-600 bg-slate-100 p-2.5 rounded-lg border border-slate-200">
+              <div className="flex items-center gap-1.5 text-slate-700">
+                <Clock className="w-4 h-4 text-secondary" />
+                <span>OTP expires in:</span>
+              </div>
+              <span className={`font-mono font-bold ${otpTimer < 60 ? "text-red-600 animate-pulse" : "text-slate-900"}`}>
+                {formatTime(otpTimer)}
+              </span>
+            </div>
+
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
                 6-Digit Reset OTP Code *
@@ -347,6 +472,30 @@ function AdminLoginContent() {
               </div>
             </div>
 
+            {/* Resend Reset OTP Button */}
+            <div className="flex items-center justify-between text-xs pt-1">
+              <span className="text-slate-500">Didn't receive the code?</span>
+              <button
+                type="button"
+                disabled={cooldownTimer > 0 || resendLoading}
+                onClick={() => handleResendOtp("reset")}
+                className={`font-bold flex items-center gap-1 ${
+                  cooldownTimer > 0 || resendLoading
+                    ? "text-slate-400 cursor-not-allowed"
+                    : "text-secondary hover:underline cursor-pointer"
+                }`}
+              >
+                <RotateCcw className={`w-3.5 h-3.5 ${resendLoading ? "animate-spin" : ""}`} />
+                <span>
+                  {resendLoading
+                    ? "Resending..."
+                    : cooldownTimer > 0
+                    ? `Resend OTP (${cooldownTimer}s)`
+                    : "Resend OTP"}
+                </span>
+              </button>
+            </div>
+
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
                 New Password *
@@ -356,7 +505,7 @@ function AdminLoginContent() {
                 <input
                   type="password"
                   required
-                  placeholder="Enter new password"
+                  placeholder="Enter new password (min 8 chars, 1 upper, 1 lower, 1 num)"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 bg-surface-container-low border-2 border-slate-300 focus:border-secondary focus:outline-none rounded-lg text-sm"
@@ -383,7 +532,7 @@ function AdminLoginContent() {
 
             <Button
               type="submit"
-              disabled={loading || resetOtpCode.length < 6}
+              disabled={loading || resetOtpCode.length < 6 || otpTimer <= 0}
               variant="primary"
               className="w-full py-3 bg-secondary hover:bg-secondary-dark text-on-secondary font-bold uppercase tracking-wider flex items-center justify-center gap-2 mt-4"
             >
@@ -407,10 +556,6 @@ function AdminLoginContent() {
           </form>
         )}
 
-        <div className="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-400 flex items-center justify-center gap-1.5">
-          <ShieldCheck className="w-4 h-4 text-tertiary" />
-          <span>Default Credentials: admin / admin123</span>
-        </div>
       </Card>
     </div>
   );
@@ -441,4 +586,3 @@ export default function AdminLoginPage() {
     </Suspense>
   );
 }
-

@@ -111,3 +111,9 @@ else:
 
 DEFAULT_FROM_EMAIL = f"KB Garage <{EMAIL_HOST_USER}>"
 OWNER_NOTIFICATION_EMAIL = os.getenv('OWNER_NOTIFICATION_EMAIL', 'Kbgarage46@gmail.com')
+
+# Security & OTP Configuration
+OTP_EXPIRY_SECONDS = int(os.getenv('OTP_EXPIRY_SECONDS', '300'))
+OTP_RESEND_COOLDOWN = int(os.getenv('OTP_RESEND_COOLDOWN', '60'))
+OTP_MAX_ATTEMPTS = int(os.getenv('OTP_MAX_ATTEMPTS', '5'))
+

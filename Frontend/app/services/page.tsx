@@ -80,7 +80,7 @@ export default function ServicesPage() {
   const [activeTab, setActiveTab] = useState("all");
 
   return (
-    <div className="py-12 space-y-16">
+    <div className="pb-16 space-y-16">
       {/* Header Banner */}
       <section className="bg-primary text-white py-16 px-margin-mobile md:px-margin-desktop text-center relative overflow-hidden">
         <div className="max-w-container-max mx-auto space-y-4">

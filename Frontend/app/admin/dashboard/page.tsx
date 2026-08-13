@@ -502,9 +502,6 @@ export default function AdminDashboardPage() {
             <h1 className="font-heading text-lg sm:text-2xl md:text-3xl font-black text-white tracking-tight">
               KB Garage Admin Portal
             </h1>
-            <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5 sm:mt-1 leading-snug">
-              Appointments, Services, Gallery, Blogs, Reviews & Enquiries. Transferred to <span className="text-secondary font-bold">rikinp0102@gmail.com</span>.
-            </p>
           </div>
         </div>
 

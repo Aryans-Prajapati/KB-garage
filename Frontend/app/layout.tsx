@@ -9,6 +9,7 @@ const montserrat = Montserrat({
   weight: ["600", "700", "800"],
   variable: "--font-montserrat",
   display: "swap",
+  fallback: ["system-ui", "sans-serif"],
 });
 
 const inter = Inter({
@@ -16,6 +17,7 @@ const inter = Inter({
   weight: ["400", "500", "600"],
   variable: "--font-inter",
   display: "swap",
+  fallback: ["system-ui", "sans-serif"],
 });
 
 export const metadata: Metadata = {
@@ -33,7 +35,7 @@ export default function RootLayout({
     <html lang="en" className="light">
       <body className={`${montserrat.variable} ${inter.variable} min-h-screen flex flex-col font-sans bg-background text-on-surface`}>
         <TopNavBar />
-        <main className="flex-grow pt-20">{children}</main>
+        <main className="flex-grow pt-16 sm:pt-20">{children}</main>
         <Footer />
       </body>
     </html>
