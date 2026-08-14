@@ -16,3 +16,8 @@ python-multipart>=0.0.6
 # Environment & Utilities
 python-dotenv>=1.0.0
 requests>=2.31.0
+
+# Type Checking & Stubs (Dev)
+django-stubs>=6.1.0
+djangorestframework-stubs>=3.18.0
+

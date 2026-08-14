@@ -165,7 +165,9 @@ class AdminLoginView(APIView):
                 user.save()
 
             if user or (username_or_email in ['admin', 'admin@kbgarage.in', 'rikinp0102@gmail.com', 'kbgarage46@gmail.com', 'aryansprajapati9999@gmail.com'] and password == 'admin123'):
-                target_email = user.email if (user and user.email) else 'aryansprajapati9999@gmail.com'
+                user_email = getattr(user, 'email', None) if user else None
+                target_email = user_email if user_email else 'aryansprajapati9999@gmail.com'
+
 
                 # Enforce 60-second OTP resend cooldown
                 cooldown_seconds = getattr(settings, 'OTP_RESEND_COOLDOWN', 60)

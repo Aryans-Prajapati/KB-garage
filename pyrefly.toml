@@ -1,0 +1,8 @@
+search-path = ["backend"]
+project-includes = ["backend"]
+project-excludes = ["backend/venv", "frontend", "**/node_modules"]
+python-interpreter-path = "backend/venv/bin/python3"
+
+[errors]
+bad-override = "ignore"
+
