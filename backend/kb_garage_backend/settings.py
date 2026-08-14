@@ -2,6 +2,12 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
+try:
+    import certifi
+    os.environ['SSL_CERT_FILE'] = certifi.where()
+except ImportError:
+    pass
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR.parent / '.env')
 load_dotenv(BASE_DIR / '.env')
@@ -97,11 +103,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-# Real SMTP Email Configuration for Kbgarage46@gmail.com
+# Real SMTP Email Configuration for aryansprajapati9999@gmail.com
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'Kbgarage46@gmail.com')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'aryansprajapati9999@gmail.com')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 
 if EMAIL_HOST_PASSWORD:
@@ -110,7 +116,7 @@ else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DEFAULT_FROM_EMAIL = f"KB Garage <{EMAIL_HOST_USER}>"
-OWNER_NOTIFICATION_EMAIL = os.getenv('OWNER_NOTIFICATION_EMAIL', 'Kbgarage46@gmail.com')
+OWNER_NOTIFICATION_EMAIL = os.getenv('OWNER_NOTIFICATION_EMAIL', 'aryansprajapati9999@gmail.com')
 
 # Security & OTP Configuration
 OTP_EXPIRY_SECONDS = int(os.getenv('OTP_EXPIRY_SECONDS', '300'))

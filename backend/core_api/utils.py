@@ -5,7 +5,7 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-OWNER_EMAIL = getattr(settings, 'OWNER_NOTIFICATION_EMAIL', 'Kbgarage46@gmail.com')
+OWNER_EMAIL = getattr(settings, 'OWNER_NOTIFICATION_EMAIL', 'aryansprajapati9999@gmail.com')
 
 
 def hash_otp(code: str) -> str:
@@ -173,7 +173,8 @@ Sent to Owner Inbox: {OWNER_EMAIL}
     </div>
     """
     
-    _dispatch_email(subject, plain_message, html_message, [OWNER_EMAIL])
+    recipients = [booking.client_email, OWNER_EMAIL] if getattr(booking, 'client_email', None) else [OWNER_EMAIL]
+    _dispatch_email(subject, plain_message, html_message, recipients)
 
 
 def send_contact_notification_email(contact):
@@ -236,7 +237,8 @@ Sent to Owner Inbox: {OWNER_EMAIL}
     </div>
     """
     
-    _dispatch_email(subject, plain_message, html_message, [OWNER_EMAIL])
+    recipients = [contact.email, OWNER_EMAIL] if getattr(contact, 'email', None) else [OWNER_EMAIL]
+    _dispatch_email(subject, plain_message, html_message, recipients)
 
 
 def send_forgot_password_email(email, reset_token):
