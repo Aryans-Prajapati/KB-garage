@@ -228,17 +228,26 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // FILE UPLOAD HANDLER FOR GALLERY / SERVICES
-  const handleFileUpload = async (file: File, isEdit = false) => {
+  // FILE UPLOAD HANDLER FOR GALLERY / SERVICES / BLOGS
+  const handleFileUpload = async (
+    file: File,
+    target: "gallery-add" | "gallery-edit" | "service-add" | "service-edit" | "blog-add"
+  ) => {
     if (!file) return;
     setUploadingImage(true);
     try {
       const res = await uploadImageApi(token || "", file);
       if (res && res.url) {
-        if (isEdit && editingGallery) {
-          setEditingGallery((prev: any) => ({ ...prev, image: res.url }));
-        } else {
+        if (target === "gallery-add") {
           setNewGallery((prev) => ({ ...prev, image: res.url }));
+        } else if (target === "gallery-edit") {
+          setEditingGallery((prev: any) => ({ ...prev, image: res.url }));
+        } else if (target === "service-add") {
+          setNewService((prev) => ({ ...prev, image: res.url }));
+        } else if (target === "service-edit") {
+          setEditingService((prev: any) => ({ ...prev, image: res.url }));
+        } else if (target === "blog-add") {
+          setNewBlog((prev) => ({ ...prev, image: res.url }));
         }
         alert("Image uploaded successfully!");
       }
@@ -765,28 +774,62 @@ export default function AdminDashboardPage() {
                   className="px-3 py-2 border rounded text-xs bg-white font-bold text-secondary"
                 />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <input
                   type="text"
                   placeholder="Category (e.g. detailing, performance, maintenance)"
                   value={newService.category}
                   onChange={(e) => setNewService({ ...newService, category: e.target.value })}
-                  className="px-3 py-2 border rounded text-xs bg-white"
+                  className="px-3 py-2 border rounded text-xs bg-white font-medium"
                 />
                 <input
                   type="text"
                   placeholder="Badge (e.g. Essential, Popular, High Performance)"
                   value={newService.badge}
                   onChange={(e) => setNewService({ ...newService, badge: e.target.value })}
-                  className="px-3 py-2 border rounded text-xs bg-white"
+                  className="px-3 py-2 border rounded text-xs bg-white font-medium"
                 />
-                <input
-                  type="text"
-                  placeholder="Image URL"
-                  value={newService.image}
-                  onChange={(e) => setNewService({ ...newService, image: e.target.value })}
-                  className="px-3 py-2 border rounded text-xs bg-white"
-                />
+              </div>
+
+              {/* DIRECT PHOTO UPLOAD BUTTON & URL INPUT */}
+              <div className="p-3 bg-white border border-slate-200 rounded-lg space-y-2">
+                <label className="block text-[11px] font-bold text-slate-700 uppercase">
+                  Service Photo (Upload direct file or paste URL)
+                </label>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <label className="cursor-pointer px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-2 shadow-sm border border-slate-700 transition-colors">
+                    <Upload className="w-4 h-4 text-secondary" />
+                    <span>{uploadingImage ? "Uploading..." : "Upload Image File"}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          handleFileUpload(e.target.files[0], "service-add");
+                        }
+                      }}
+                    />
+                  </label>
+                  <span className="text-xs text-slate-400 font-bold text-center">OR</span>
+                  <input
+                    type="text"
+                    placeholder="https://..."
+                    value={newService.image}
+                    onChange={(e) => setNewService({ ...newService, image: e.target.value })}
+                    className="flex-1 px-3 py-2 border rounded text-xs bg-white"
+                  />
+                </div>
+                {newService.image && (
+                  <div className="flex items-center gap-3 pt-2">
+                    <div className="relative h-20 w-32 rounded-md overflow-hidden border border-slate-200 shrink-0">
+                      <Image src={newService.image} alt="Preview" fill className="object-cover" />
+                    </div>
+                    <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+                      <CheckCircle2 className="w-4 h-4" /> Image ready for service
+                    </span>
+                  </div>
+                )}
               </div>
               <textarea
                 placeholder="Service Description..."
@@ -836,25 +879,49 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Badge Tag</label>
-                  <input
-                    type="text"
-                    value={editingService.badge || ""}
-                    onChange={(e) => setEditingService({ ...editingService, badge: e.target.value })}
-                    className="w-full px-3 py-2 border rounded text-xs bg-white"
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Image URL</label>
+              <div>
+                <label className="text-[10px] font-bold text-slate-500 uppercase">Badge Tag</label>
+                <input
+                  type="text"
+                  value={editingService.badge || ""}
+                  onChange={(e) => setEditingService({ ...editingService, badge: e.target.value })}
+                  className="w-full px-3 py-2 border rounded text-xs bg-white font-medium"
+                />
+              </div>
+
+              {/* DIRECT PHOTO UPLOAD BUTTON & URL INPUT */}
+              <div className="p-3 bg-white border border-amber-200 rounded-lg space-y-2">
+                <label className="block text-[11px] font-bold text-slate-700 uppercase">
+                  Update Service Photo (Upload direct file or paste URL)
+                </label>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <label className="cursor-pointer px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-2 shadow-sm border border-slate-700 transition-colors">
+                    <Upload className="w-4 h-4 text-secondary" />
+                    <span>{uploadingImage ? "Uploading..." : "Upload New Image File"}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          handleFileUpload(e.target.files[0], "service-edit");
+                        }
+                      }}
+                    />
+                  </label>
+                  <span className="text-xs text-slate-400 font-bold text-center">OR</span>
                   <input
                     type="text"
                     value={editingService.image || ""}
                     onChange={(e) => setEditingService({ ...editingService, image: e.target.value })}
-                    className="w-full px-3 py-2 border rounded text-xs bg-white"
+                    className="flex-1 px-3 py-2 border rounded text-xs bg-white"
                   />
                 </div>
+                {editingService.image && (
+                  <div className="relative h-24 w-36 rounded-md overflow-hidden border border-slate-200 mt-2">
+                    <Image src={editingService.image} alt="Preview" fill className="object-cover" />
+                  </div>
+                )}
               </div>
 
               <div>
@@ -960,7 +1027,7 @@ export default function AdminDashboardPage() {
                       className="hidden"
                       onChange={(e) => {
                         if (e.target.files && e.target.files[0]) {
-                          handleFileUpload(e.target.files[0], false);
+                          handleFileUpload(e.target.files[0], "gallery-add");
                         }
                       }}
                     />
@@ -1033,7 +1100,7 @@ export default function AdminDashboardPage() {
                       className="hidden"
                       onChange={(e) => {
                         if (e.target.files && e.target.files[0]) {
-                          handleFileUpload(e.target.files[0], true);
+                          handleFileUpload(e.target.files[0], "gallery-edit");
                         }
                       }}
                     />
@@ -1133,11 +1200,51 @@ export default function AdminDashboardPage() {
                   className="px-3 py-2 border rounded text-xs"
                 />
               </div>
+              {/* DIRECT PHOTO UPLOAD BUTTON & URL INPUT */}
+              <div className="p-3 bg-white border border-slate-200 rounded-lg space-y-2">
+                <label className="block text-[11px] font-bold text-slate-700 uppercase">
+                  Article Photo (Upload direct file or paste URL)
+                </label>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <label className="cursor-pointer px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-2 shadow-sm border border-slate-700 transition-colors">
+                    <Upload className="w-4 h-4 text-secondary" />
+                    <span>{uploadingImage ? "Uploading..." : "Upload Image File"}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          handleFileUpload(e.target.files[0], "blog-add");
+                        }
+                      }}
+                    />
+                  </label>
+                  <span className="text-xs text-slate-400 font-bold text-center">OR</span>
+                  <input
+                    type="text"
+                    value={newBlog.image}
+                    onChange={(e) => setNewBlog({ ...newBlog, image: e.target.value })}
+                    className="flex-1 px-3 py-2 border rounded text-xs bg-white"
+                  />
+                </div>
+                {newBlog.image && (
+                  <div className="flex items-center gap-3 pt-2">
+                    <div className="relative h-20 w-32 rounded-md overflow-hidden border border-slate-200 shrink-0">
+                      <Image src={newBlog.image} alt="Preview" fill className="object-cover" />
+                    </div>
+                    <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+                      <CheckCircle2 className="w-4 h-4" /> Image ready for article
+                    </span>
+                  </div>
+                )}
+              </div>
+
               <textarea
                 placeholder="Article description..."
                 value={newBlog.desc}
                 onChange={(e) => setNewBlog({ ...newBlog, desc: e.target.value })}
-                className="w-full px-3 py-2 border rounded text-xs"
+                className="w-full px-3 py-2 border rounded text-xs bg-white"
               />
               <div className="flex justify-end gap-2">
                 <Button variant="outline" size="sm" type="button" onClick={() => setShowAddBlog(false)}>Cancel</Button>

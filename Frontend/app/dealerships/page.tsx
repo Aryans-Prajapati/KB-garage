@@ -190,7 +190,7 @@ export default function DealershipsPage() {
             <CardHeader className="p-6 sm:p-8 space-y-3">
               <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div className="space-y-1">
-                  <span className="font-mono text-xs uppercase tracking-widest text-secondary font-bold">
+                  <span className="text-xs uppercase tracking-widest text-secondary font-bold">
                     KB Garage Official Partner Division
                   </span>
 
@@ -206,12 +206,12 @@ export default function DealershipsPage() {
                 {/* Badge - Yellow Gold Palette */}
                 <div>
                   {dealership.isFirstInIndia ? (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold font-mono bg-secondary/15 text-slate-900 border border-secondary/40 shadow-sm">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-secondary/15 text-slate-900 border border-secondary/40 shadow-sm">
                       <Star className="w-3.5 h-3.5 text-secondary fill-secondary" />
                       {dealership.badge}
                     </span>
                   ) : (
-                    <Badge variant="secondary" className="text-xs font-mono py-1 px-3 bg-secondary/10 text-slate-900 border border-secondary/30">
+                    <Badge variant="secondary" className="text-xs py-1 px-3 bg-secondary/10 text-slate-900 border border-secondary/30">
                       {dealership.badge}
                     </Badge>
                   )}
@@ -232,7 +232,7 @@ export default function DealershipsPage() {
                     key={idx}
                     className="p-3.5 rounded-xl text-center border bg-slate-50 border-slate-200/80 text-slate-900"
                   >
-                    <div className="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold mb-0.5">
+                    <div className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-0.5">
                       {stat.label}
                     </div>
                     <div className="text-sm font-heading font-bold text-slate-900">
@@ -244,7 +244,7 @@ export default function DealershipsPage() {
 
               {/* Capabilities Checklist */}
               <div className="space-y-3 pt-1">
-                <h4 className="text-xs font-mono uppercase tracking-wider font-bold text-slate-800">
+                <h4 className="text-xs uppercase tracking-wider font-bold text-slate-800">
                   Key Division Offerings:
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
@@ -266,11 +266,11 @@ export default function DealershipsPage() {
                   <span className="font-sans font-medium">{dealership.location}</span>
                 </div>
                 <div className="flex items-center gap-4 flex-wrap">
-                  <a href={`tel:${dealership.phone.replace(/\s+/g, '')}`} className="flex items-center gap-1.5 hover:text-secondary transition-colors font-mono">
+                  <a href={`tel:${dealership.phone.replace(/\s+/g, '')}`} className="flex items-center gap-1.5 hover:text-secondary transition-colors font-sans">
                     <Phone className="w-3.5 h-3.5 text-secondary" />
                     <span>{dealership.phone}</span>
                   </a>
-                  <a href={`mailto:${dealership.email}`} className="flex items-center gap-1.5 hover:text-secondary transition-colors font-mono">
+                  <a href={`mailto:${dealership.email}`} className="flex items-center gap-1.5 hover:text-secondary transition-colors font-sans">
                     <Mail className="w-3.5 h-3.5 text-secondary" />
                     <span>{dealership.email}</span>
                   </a>
