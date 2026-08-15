@@ -3,6 +3,7 @@ import os
 import random
 import secrets
 import re
+import threading
 from datetime import timedelta
 from django.utils import timezone
 from rest_framework import viewsets, status
@@ -23,7 +24,7 @@ from .serializers import (
 )
 from .utils import (
     send_booking_notification_email, send_contact_notification_email,
-    send_forgot_password_email, send_otp_email, hash_otp
+    send_forgot_password_email, send_otp_email, send_admin_welcome_email, hash_otp
 )
 
 
@@ -47,15 +48,11 @@ class AdminUserManageView(APIView):
 
             user = serializer.save()
 
-            # Generate initial 6-digit OTP code for the new admin user
-            otp_code = str(random.randint(100000, 999999))
-            AdminOTP.objects.create(email=user.email, otp_code=otp_code, purpose='welcome_admin')
-            
-            # Send OTP email notification to the new admin email
-            send_otp_email(user.email, otp_code, purpose='welcome')
+            # Send welcome email asynchronously to the new admin (no OTP required)
+            threading.Thread(target=send_admin_welcome_email, args=(user.email, user.username), daemon=True).start()
 
             return Response({
-                'detail': f'New admin user {user.username} created successfully! Initial OTP security code dispatched to {user.email}.',
+                'detail': f'New admin user {user.username} created successfully! Welcome email dispatched to {user.email}.',
                 'user': AdminUserSerializer(user).data
             }, status=status.HTTP_201_CREATED)
 
@@ -117,7 +114,7 @@ class BookingViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         reference_id = f"KB-{uuid.uuid4().hex[:6].upper()}"
         booking = serializer.save(reference_id=reference_id)
-        send_booking_notification_email(booking)
+        threading.Thread(target=send_booking_notification_email, args=(booking,), daemon=True).start()
 
 
 class GalleryItemViewSet(viewsets.ModelViewSet):
@@ -141,7 +138,7 @@ class ContactMessageViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         contact = serializer.save()
-        send_contact_notification_email(contact)
+        threading.Thread(target=send_contact_notification_email, args=(contact,), daemon=True).start()
 
 
 class AdminLoginView(APIView):
@@ -166,7 +163,8 @@ class AdminLoginView(APIView):
 
             if user or (username_or_email in ['admin', 'admin@kbgarage.in', 'rikinp0102@gmail.com', 'kbgarage46@gmail.com', 'aryansprajapati9999@gmail.com'] and password == 'admin123'):
                 user_email = getattr(user, 'email', None) if user else None
-                target_email = user_email if user_email else 'aryansprajapati9999@gmail.com'
+                target_email = user_email if (user_email and '@' in user_email) else (username_or_email if '@' in username_or_email else 'aryansprajapati9999@gmail.com')
+
 
 
                 # Enforce 60-second OTP resend cooldown

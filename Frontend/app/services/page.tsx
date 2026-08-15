@@ -1,83 +1,55 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Check, Shield, Wrench, Zap, Sparkles, ArrowRight, Info } from "lucide-react";
+import Image from "next/image";
+import { Check, Shield, Wrench, Zap, Sparkles, ShieldCheck, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { fetchServices, FALLBACK_SERVICES } from "@/lib/api";
 
-const ALL_SERVICES = [
-  {
-    category: "Ceramic Coating & PPF",
-    id: "ceramic",
-    icon: Sparkles,
-    packages: [
-      {
-        name: "Standard Ceramic (3-Year)",
-        price: "₹14,999",
-        desc: "Single-stage paint correction, 9H Ceramic Shield on paintwork & wheels.",
-        features: ["Paint Correction Stage 1", "9H Nano Ceramic Coating", "Wheel & Glass Sealant", "3-Year Warranty"],
-      },
-      {
-        name: "Pro Ceramic Shield (5-Year)",
-        price: "₹24,999",
-        desc: "Dual-stage paint restoration with hydrophobic multi-layer coating.",
-        features: ["Paint Correction Stage 2", "Dual Layer Ceramic Matrix", "Full Wheel Barrel Coating", "Interior Leather Guard", "5-Year Warranty"],
-        popular: true,
-      },
-      {
-        name: "Full Armor PPF + Ceramic",
-        price: "₹49,999",
-        desc: "Self-healing clear bra paint protection film on front bumper, hood & mirrors + 5-Year Ceramic.",
-        features: ["Self-Healing PPF Front End", "Full Body Ceramic Coating", "Rock-Chip Protection", "10-Year Warranty"],
-      },
-    ],
-  },
-  {
-    category: "Performance ECU Tuning",
-    id: "tuning",
-    icon: Zap,
-    packages: [
-      {
-        name: "Stage 1 ECU Calibration",
-        price: "₹19,999",
-        desc: "Software optimization calibrated on stock hardware for Indian fuel specs (+15-25% HP & Torque gain).",
-        features: ["Custom Dyno Run", "Speed Limiter Removal", "Throttle Response Mapping", "Stock Backup Retained"],
-      },
-      {
-        name: "Stage 2 Performance Package",
-        price: "₹39,999",
-        desc: "High-flow downpipe/exhaust integration + custom ECU/TCU transmission remapping.",
-        features: ["Downpipe Integration", "TCU Gear Shift Speed Map", "Burbles / Pops Calibration (Optional)", "Real-time Telemetry Log"],
-        popular: true,
-      },
-    ],
-  },
-  {
-    category: "Routine & Specialized Service",
-    id: "maintenance",
-    icon: Wrench,
-    packages: [
-      {
-        name: "Minor Maintenance Service",
-        price: "₹2,499",
-        desc: "Synthetic engine oil replacement, OEM filter, 30-point Indian suspension inspection.",
-        features: ["Motul / Liqui Moly Synthetic Oil", "OEM Oil Filter Replacement", "30-Point Safety Check", "Fluid Level Top-ups"],
-      },
-      {
-        name: "Major Performance Service",
-        price: "₹8,999",
-        desc: "Iridium spark plugs, brake fluid flush, cabin/air filters, transmission check.",
-        features: ["Iridium Spark Plugs", "High-Temp DOT4 Brake Flush", "Engine & Cabin Air Filters", "Full Computer Diagnostics"],
-        popular: true,
-      },
-    ],
-  },
-];
+const ICON_MAP: Record<string, any> = {
+  Wrench: Wrench,
+  Zap: Zap,
+  Sparkles: Sparkles,
+  ShieldCheck: ShieldCheck,
+};
 
 export default function ServicesPage() {
-  const [activeTab, setActiveTab] = useState("all");
+  const [services, setServices] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchServices()
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setServices(data.filter((s: any) => s.is_active !== false));
+        } else {
+          setServices(FALLBACK_SERVICES);
+        }
+      })
+      .catch(() => {
+        setServices(FALLBACK_SERVICES);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Group services by category dynamically
+  const groupedCategories = services.reduce((acc: Record<string, any[]>, service: any) => {
+    const rawCat = service.category || "General Maintenance";
+    // Normalize category display name
+    let catTitle = rawCat;
+    if (rawCat.toLowerCase() === "detailing") catTitle = "Ceramic Coating & PPF Armor";
+    else if (rawCat.toLowerCase() === "performance") catTitle = "Performance ECU Tuning";
+    else if (rawCat.toLowerCase() === "maintenance") catTitle = "Routine & Specialized Maintenance";
+
+    if (!acc[catTitle]) {
+      acc[catTitle] = [];
+    }
+    acc[catTitle].push(service);
+    return acc;
+  }, {});
 
   return (
     <div className="pb-16 space-y-16">
@@ -94,81 +66,95 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Services List */}
+      {/* Dynamic Services List from API */}
       <section className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop space-y-16">
-        {ALL_SERVICES.map((section) => {
-          const SectionIcon = section.icon;
-          return (
-            <div key={section.id} id={section.id} className="space-y-8 scroll-mt-28">
-              <div className="flex items-center gap-3 border-b border-surface-container pb-4">
-                <div className="w-10 h-10 rounded bg-secondary/10 text-secondary flex items-center justify-center">
-                  <SectionIcon className="w-5 h-5" />
+        {loading ? (
+          <div className="text-center py-12 text-slate-500 font-semibold">Loading live service catalog...</div>
+        ) : (
+          Object.keys(groupedCategories).map((categoryName) => {
+            const catServices = groupedCategories[categoryName];
+            return (
+              <div key={categoryName} className="space-y-8 scroll-mt-28">
+                <div className="flex items-center gap-3 border-b border-surface-container pb-4">
+                  <div className="w-10 h-10 rounded bg-secondary/10 text-secondary flex items-center justify-center">
+                    <Wrench className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-primary">
+                      {categoryName}
+                    </h2>
+                    <p className="text-xs text-on-surface-variant uppercase tracking-wider font-semibold">
+                      Calibrated Solutions & Workmanship Guarantee
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-primary">
-                    {section.category}
-                  </h2>
-                  <p className="text-xs text-on-surface-variant uppercase tracking-wider font-semibold">
-                    Calibrated Solutions & Guarantee
-                  </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+                  {catServices.map((service: any) => {
+                    const IconComponent = ICON_MAP[service.icon_name] || Wrench;
+                    const isPopular = service.badge === "Popular" || service.badge === "Ultimate Armor";
+
+                    return (
+                      <Card
+                        key={service.id || service.service_id}
+                        className={`flex flex-col relative overflow-hidden transition-all duration-300 ${
+                          isPopular ? "border-secondary border-2 shadow-lg" : "border-slate-200"
+                        }`}
+                      >
+                        {service.image && (
+                          <div className="relative h-44 w-full overflow-hidden bg-slate-900">
+                            <Image
+                              src={service.image}
+                              alt={service.title}
+                              fill
+                              className="object-cover transition-transform duration-500 hover:scale-105"
+                            />
+                            {service.badge && (
+                              <div className="absolute top-3 right-3">
+                                <Badge variant="neutral">{service.badge}</Badge>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        <CardHeader>
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary">
+                              <IconComponent className="w-4 h-4 text-secondary" />
+                            </div>
+                            <CardTitle className="text-lg font-bold text-primary">{service.title}</CardTitle>
+                          </div>
+                          <div className="pt-2 flex items-baseline gap-1">
+                            <span className="font-heading text-3xl font-extrabold gold-shine-text">
+                              {service.price_inr}
+                            </span>
+                            <span className="text-xs text-on-surface-variant font-medium">/ service</span>
+                          </div>
+                          <CardDescription className="pt-2 text-slate-600 leading-relaxed">
+                            {service.desc}
+                          </CardDescription>
+                        </CardHeader>
+
+                        <CardFooter className="mt-auto pt-4">
+                          <Link href={`/booking?service=${service.service_id || service.id}`} className="w-full">
+                            <Button
+                              variant={isPopular ? "primary" : "outline"}
+                              size="md"
+                              className="w-full flex items-center justify-center gap-2"
+                            >
+                              <span>Book This Service</span>
+                              <ArrowRight className="w-4 h-4" />
+                            </Button>
+                          </Link>
+                        </CardFooter>
+                      </Card>
+                    );
+                  })}
                 </div>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-                {section.packages.map((pkg, i) => (
-                  <Card
-                    key={i}
-                    className={`flex flex-col relative ${pkg.popular ? "border-secondary border-2 shadow-lg" : ""
-                      }`}
-                  >
-                    {pkg.popular && (
-                      <div className="absolute top-0 right-0 gold-btn-shine text-on-secondary text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl">
-                        Most Popular
-                      </div>
-                    )}
-                    <CardHeader>
-                      <CardTitle className="text-lg">{pkg.name}</CardTitle>
-                      <div className="pt-2 flex items-baseline gap-1">
-                        <span className="font-heading text-3xl font-extrabold gold-shine-text">
-                          {pkg.price}
-                        </span>
-                        <span className="text-xs text-on-surface-variant font-medium">/ service</span>
-                      </div>
-                      <CardDescription className="pt-2">{pkg.desc}</CardDescription>
-                    </CardHeader>
-
-                    <CardContent className="flex-grow space-y-3">
-                      <div className="text-xs font-bold uppercase text-slate-400 tracking-wider">
-                        Package Inclusions:
-                      </div>
-                      <ul className="space-y-2 text-sm text-on-surface">
-                        {pkg.features.map((feat, idx) => (
-                          <li key={idx} className="flex items-center gap-2">
-                            <Check className="w-4 h-4 text-tertiary shrink-0" />
-                            <span>{feat}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-
-                    <CardFooter>
-                      <Link href={`/booking?service=${section.id}`} className="w-full">
-                        <Button
-                          variant={pkg.popular ? "primary" : "outline"}
-                          size="md"
-                          className="w-full flex items-center justify-center gap-2"
-                        >
-                          <span>Select Package</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </Button>
-                      </Link>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </section>
 
       {/* Feature Guarantee Box */}

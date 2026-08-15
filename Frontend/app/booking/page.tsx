@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Car,
@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Stepper } from "@/components/ui/stepper";
-import { createBooking } from "@/lib/api";
+import { createBooking, fetchServices } from "@/lib/api";
 
 const STEPS = [
   { id: 1, title: "Vehicle Selection" },
@@ -374,9 +374,25 @@ export default function BookingPage() {
   const [year, setYear] = useState("2024");
   const [plate, setPlate] = useState("");
 
+  const [servicesList, setServicesList] = useState<any[]>(SERVICES_LIST);
   const [selectedService, setSelectedService] = useState(SERVICES_LIST[0]);
   const [selectedDate, setSelectedDate] = useState("2026-08-12");
   const [selectedTime, setSelectedTime] = useState("10:30 AM");
+
+  useEffect(() => {
+    fetchServices().then((data) => {
+      if (Array.isArray(data) && data.length > 0) {
+        const formatted = data.map((s: any) => ({
+          id: s.service_id || String(s.id),
+          title: s.title,
+          price: s.price_inr,
+          desc: s.desc,
+        }));
+        setServicesList(formatted);
+        setSelectedService(formatted[0]);
+      }
+    });
+  }, []);
 
   const [contact, setContact] = useState({
     name: "",
@@ -612,7 +628,7 @@ export default function BookingPage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {SERVICES_LIST.map((s) => (
+                {servicesList.map((s) => (
                   <div
                     key={s.id}
                     onClick={() => setSelectedService(s)}
@@ -622,6 +638,7 @@ export default function BookingPage() {
                       }`}
                   >
                     <div className="font-heading font-bold text-primary text-base">{s.title}</div>
+                    {s.desc && <div className="text-xs text-slate-500 mt-1 line-clamp-2">{s.desc}</div>}
                     <div className="text-sm text-secondary font-black tracking-wider mt-2 flex items-center justify-between">
                       <span>{s.price}</span>
                       {selectedService.id === s.id && (

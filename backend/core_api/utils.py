@@ -80,7 +80,52 @@ If you did not attempt to log in to the KB Garage Admin Panel, please ignore thi
     </div>
     """
 
-    _dispatch_email(subject, plain_message, html_message, [email, OWNER_EMAIL])
+    _dispatch_email(subject, plain_message, html_message, [email])
+
+
+def send_admin_welcome_email(email, username):
+    subject = f"[KB Garage Admin] Welcome to Admin Team - {username}"
+    
+    plain_message = f"""KB Garage Admin Team Registration
+
+Hello {username},
+
+You have been successfully added as an Admin team member for KB Garage India.
+
+Account Details:
+Username: {username}
+Email:    {email}
+
+You can now log in to the KB Garage Admin Portal at:
+http://localhost:3000/admin/login
+
+Welcome to the team!
+"""
+
+    html_message = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 550px; border: 1px solid #cbd5e1; border-radius: 12px; overflow: hidden; margin: 0 auto; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+      <div style="background-color: #0f172a; color: #ffffff; padding: 24px; text-align: center;">
+        <h2 style="margin: 0; font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: 1px;">KB GARAGE INDIA</h2>
+        <p style="margin: 4px 0 0 0; color: #d4af37; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Admin Team Member Added</p>
+      </div>
+      <div style="padding: 28px;">
+        <h3 style="color: #0f172a; margin-top: 0;">Welcome to the KB Garage Admin Team!</h3>
+        <p style="color: #475569; font-size: 14px; line-height: 1.6;">Hello <strong>{username}</strong>,</p>
+        <p style="color: #475569; font-size: 14px; line-height: 1.6;">You have been successfully registered as an Admin team member. You now have access to manage bookings, services, gallery projects, customer reviews, and dashboard metrics.</p>
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 20px 0;">
+          <div style="font-size: 13px; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">Your Registered Credentials</div>
+          <div style="font-size: 14px; color: #0f172a; margin-bottom: 4px;">Username: <strong>{username}</strong></div>
+          <div style="font-size: 14px; color: #0f172a;">Email: <strong>{email}</strong></div>
+        </div>
+        <div style="text-align: center; margin-top: 24px;">
+          <a href="http://localhost:3000/admin/login" style="background-color: #d4af37; color: #0f172a; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 14px; display: inline-block;">Access Admin Portal</a>
+        </div>
+      </div>
+    </div>
+    """
+
+    _dispatch_email(subject, plain_message, html_message, [email])
+
 
 
 
@@ -272,4 +317,4 @@ Token:     {reset_token}
     </div>
     """
     
-    _dispatch_email(subject, plain_message, html_message, [email, OWNER_EMAIL])
+    _dispatch_email(subject, plain_message, html_message, [email])

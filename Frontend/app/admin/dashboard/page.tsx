@@ -746,7 +746,7 @@ export default function AdminDashboardPage() {
                   required
                   value={newService.service_id}
                   onChange={(e) => setNewService({ ...newService, service_id: e.target.value })}
-                  className="px-3 py-2 border rounded text-xs"
+                  className="px-3 py-2 border rounded text-xs bg-white"
                 />
                 <input
                   type="text"
@@ -754,7 +754,7 @@ export default function AdminDashboardPage() {
                   required
                   value={newService.title}
                   onChange={(e) => setNewService({ ...newService, title: e.target.value })}
-                  className="px-3 py-2 border rounded text-xs"
+                  className="px-3 py-2 border rounded text-xs bg-white font-bold"
                 />
                 <input
                   type="text"
@@ -762,14 +762,38 @@ export default function AdminDashboardPage() {
                   required
                   value={newService.price_inr}
                   onChange={(e) => setNewService({ ...newService, price_inr: e.target.value })}
-                  className="px-3 py-2 border rounded text-xs font-bold"
+                  className="px-3 py-2 border rounded text-xs bg-white font-bold text-secondary"
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <input
+                  type="text"
+                  placeholder="Category (e.g. detailing, performance, maintenance)"
+                  value={newService.category}
+                  onChange={(e) => setNewService({ ...newService, category: e.target.value })}
+                  className="px-3 py-2 border rounded text-xs bg-white"
+                />
+                <input
+                  type="text"
+                  placeholder="Badge (e.g. Essential, Popular, High Performance)"
+                  value={newService.badge}
+                  onChange={(e) => setNewService({ ...newService, badge: e.target.value })}
+                  className="px-3 py-2 border rounded text-xs bg-white"
+                />
+                <input
+                  type="text"
+                  placeholder="Image URL"
+                  value={newService.image}
+                  onChange={(e) => setNewService({ ...newService, image: e.target.value })}
+                  className="px-3 py-2 border rounded text-xs bg-white"
                 />
               </div>
               <textarea
-                placeholder="Description..."
+                placeholder="Service Description..."
+                rows={2}
                 value={newService.desc}
                 onChange={(e) => setNewService({ ...newService, desc: e.target.value })}
-                className="w-full px-3 py-2 border rounded text-xs"
+                className="w-full px-3 py-2 border rounded text-xs bg-white"
               />
               <div className="flex justify-end gap-2">
                 <Button variant="outline" size="sm" type="button" onClick={() => setShowAddService(false)}>Cancel</Button>
@@ -781,30 +805,82 @@ export default function AdminDashboardPage() {
           {/* Edit Service Form */}
           {editingService && (
             <form onSubmit={handleUpdateService} className="p-4 bg-amber-50 rounded-xl border-2 border-amber-300 space-y-4">
-              <h3 className="font-heading text-sm font-bold text-amber-900">Edit Service #{editingService.id}</h3>
+              <h3 className="font-heading text-sm font-bold text-amber-900">Edit Service #{editingService.id} ({editingService.service_id})</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Title</label>
+                  <input
+                    type="text"
+                    value={editingService.title || ""}
+                    onChange={(e) => setEditingService({ ...editingService, title: e.target.value })}
+                    className="w-full px-3 py-2 border rounded text-xs font-bold bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Price INR</label>
+                  <input
+                    type="text"
+                    value={editingService.price_inr || ""}
+                    onChange={(e) => setEditingService({ ...editingService, price_inr: e.target.value })}
+                    className="w-full px-3 py-2 border rounded text-xs font-bold text-secondary bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Category</label>
+                  <input
+                    type="text"
+                    value={editingService.category || ""}
+                    onChange={(e) => setEditingService({ ...editingService, category: e.target.value })}
+                    className="w-full px-3 py-2 border rounded text-xs bg-white"
+                  />
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  value={editingService.title}
-                  onChange={(e) => setEditingService({ ...editingService, title: e.target.value })}
-                  className="px-3 py-2 border rounded text-xs font-bold"
-                />
-                <input
-                  type="text"
-                  value={editingService.price_inr}
-                  onChange={(e) => setEditingService({ ...editingService, price_inr: e.target.value })}
-                  className="px-3 py-2 border rounded text-xs font-bold text-secondary"
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Badge Tag</label>
+                  <input
+                    type="text"
+                    value={editingService.badge || ""}
+                    onChange={(e) => setEditingService({ ...editingService, badge: e.target.value })}
+                    className="w-full px-3 py-2 border rounded text-xs bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Image URL</label>
+                  <input
+                    type="text"
+                    value={editingService.image || ""}
+                    onChange={(e) => setEditingService({ ...editingService, image: e.target.value })}
+                    className="w-full px-3 py-2 border rounded text-xs bg-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-slate-500 uppercase">Description</label>
+                <textarea
+                  rows={2}
+                  value={editingService.desc || ""}
+                  onChange={(e) => setEditingService({ ...editingService, desc: e.target.value })}
+                  className="w-full px-3 py-2 border rounded text-xs bg-white"
                 />
               </div>
-              <textarea
-                rows={2}
-                value={editingService.desc}
-                onChange={(e) => setEditingService({ ...editingService, desc: e.target.value })}
-                className="w-full px-3 py-2 border rounded text-xs"
-              />
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" size="sm" type="button" onClick={() => setEditingService(null)}>Cancel</Button>
-                <Button variant="primary" size="sm" type="submit">Update Service</Button>
+
+              <div className="flex justify-between items-center pt-2">
+                <label className="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editingService.is_active !== false}
+                    onChange={(e) => setEditingService({ ...editingService, is_active: e.target.checked })}
+                    className="w-4 h-4 text-secondary rounded"
+                  />
+                  <span>Service Active on Website</span>
+                </label>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" type="button" onClick={() => setEditingService(null)}>Cancel</Button>
+                  <Button variant="primary" size="sm" type="submit">Update Service</Button>
+                </div>
               </div>
             </form>
           )}
