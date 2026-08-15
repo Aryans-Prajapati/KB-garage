@@ -20,11 +20,21 @@ const NAV_ITEMS = [
       { label: "Precision Detailing", href: "/services#detailing" },
     ],
   },
+  {
+    label: "Dealerships",
+    href: "/dealerships",
+    submenu: [
+      { label: "Petronas", href: "/dealerships#petronas", badge: "1st in India" },
+      { label: "Indomotive", href: "/dealerships#indomotive" },
+      { label: "Spinoto", href: "/dealerships#spinoto" },
+    ],
+  },
   { label: "Gallery", href: "/gallery" },
   { label: "About Us", href: "/about" },
   { label: "Blog & Reviews", href: "/blog" },
   { label: "Contact", href: "/contact" },
 ];
+
 
 export function TopNavBar() {
   const pathname = usePathname();
@@ -138,15 +148,22 @@ export function TopNavBar() {
                           <Link
                             key={sub.label}
                             href={sub.href}
-                            className="group/sub relative py-2 px-3 transition-colors duration-200 rounded-lg hover:bg-transparent"
+                            className="group/sub relative py-2 px-3 transition-colors duration-200 rounded-lg hover:bg-slate-50/60 flex items-center justify-between"
                           >
                             <span className="relative inline-block font-sans text-xs font-semibold uppercase tracking-wider text-slate-700 group-hover/sub:text-secondary transition-colors duration-300 pb-0.5">
                               {sub.label}
                               {/* Left-to-right underline animation */}
                               <span className="absolute bottom-0 left-0 h-[2px] w-full bg-secondary rounded-full transform origin-left transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] scale-x-0 group-hover/sub:scale-x-100" />
                             </span>
+                            {sub.badge && (
+                              <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-tight bg-secondary/15 text-slate-900 border border-secondary/40 font-mono shrink-0">
+                                {sub.badge}
+                              </span>
+                            )}
+
                           </Link>
                         ))}
+
                       </div>
                     </div>
                   )}
@@ -274,15 +291,22 @@ export function TopNavBar() {
                                 key={sub.label}
                                 href={sub.href}
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="group/sub relative flex items-center py-1 text-sm font-medium text-slate-600 hover:text-secondary transition-colors"
+                                className="group/sub relative flex items-center justify-between py-1 text-sm font-medium text-slate-600 hover:text-secondary transition-colors"
                               >
                                 <span className="relative inline-block pb-0.5">
                                   {sub.label}
                                   <span className="absolute bottom-0 left-0 h-[1.5px] w-full bg-secondary rounded-full transform origin-left transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] scale-x-0 group-hover/sub:scale-x-100" />
                                 </span>
+                                {sub.badge && (
+                                  <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-tight bg-secondary/15 text-slate-900 border border-secondary/40 font-mono shrink-0">
+                                    {sub.badge}
+                                  </span>
+                                )}
+
                               </Link>
                             );
                           })}
+
                         </motion.div>
                       )}
                     </AnimatePresence>

@@ -50,8 +50,9 @@ export function Footer() {
                 <Link href="/services#tuning" className="hover:text-secondary transition-colors">Performance ECU Tuning</Link>
               </li>
               <li>
-                <Link href="/services#maintenance" className="hover:text-secondary transition-colors">Comprehensive Service</Link>
+                <Link href="/dealerships" className="hover:text-secondary transition-colors">Authorized Dealerships</Link>
               </li>
+
               <li>
                 <Link href="/gallery" className="hover:text-secondary transition-colors">Transformations Gallery</Link>
               </li>
@@ -60,6 +61,7 @@ export function Footer() {
               </li>
             </ul>
           </div>
+
 
           {/* Contact Info */}
           <div className="space-y-3">
