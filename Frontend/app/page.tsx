@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { fetchServices, FALLBACK_SERVICES } from "@/lib/api";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -20,44 +21,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-const SERVICES = [
-  {
-    id: "general",
-    title: "General Maintenance",
-    desc: "Comprehensive diagnostic & routine maintenance schedules for Indian driving conditions.",
-    price: "₹2,499",
-    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Suzuki_Swift_%282024%29_hybrid_IMG_8820.jpg/1280px-Suzuki_Swift_%282024%29_hybrid_IMG_8820.jpg",
-    icon: Wrench,
-    badge: "Essential",
-  },
-  {
-    id: "ceramic",
-    title: "Ceramic Coating & PPF",
-    desc: "Ultra-hydrophobic paint protection film & 9H ceramic shield for monsoon & UV immunity.",
-    price: "₹14,999",
-    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Tata_Nexon_EV_in_Hyderabad_02.jpg/1280px-Tata_Nexon_EV_in_Hyderabad_02.jpg",
-    icon: Sparkles,
-    badge: "Popular",
-  },
-  {
-    id: "tuning",
-    title: "Performance ECU Tuning",
-    desc: "Dyno-proven software optimization tailored for Indian fuel specs, torque boost & responsive acceleration.",
-    price: "₹19,999",
-    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Mahindra_Thar_SUV_in_%22Red_Rage%22_color_at_Ashiana_Brahmanda%2C_East_Singbhum_India_%28Ank_Kumar%2C_Infosys_limited%29_03.jpg/1280px-Mahindra_Thar_SUV_in_%22Red_Rage%22_color_at_Ashiana_Brahmanda%2C_East_Singbhum_India_%28Ank_Kumar%2C_Infosys_limited%29_03.jpg",
-    icon: Zap,
-    badge: "High Performance",
-  },
-  {
-    id: "detail",
-    title: "Full Stage Detailing",
-    desc: "Multi-stage paint correction, interior leather restoration, and precision engine bay steam cleaning.",
-    price: "₹5,999",
-    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/2024_Hyundai_Creta_1.5_MPi_SX%28O%29_%28India%29_front_view.png/1280px-2024_Hyundai_Creta_1.5_MPi_SX%28O%29_%28India%29_front_view.png",
-    icon: ShieldCheck,
-    badge: "Signature",
-  },
-];
+const ICON_MAP: Record<string, any> = {
+  Wrench: Wrench,
+  Zap: Zap,
+  Sparkles: Sparkles,
+  ShieldCheck: ShieldCheck,
+};
 
 const REVIEWS = [
   {
@@ -81,6 +50,22 @@ const REVIEWS = [
 ];
 
 export default function HomePage() {
+  const [services, setServices] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchServices()
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setServices(data.filter((s: any) => s.is_active !== false).slice(0, 4));
+        } else {
+          setServices(FALLBACK_SERVICES.slice(0, 4));
+        }
+      })
+      .catch(() => {
+        setServices(FALLBACK_SERVICES.slice(0, 4));
+      });
+  }, []);
+
   return (
     <div className="space-y-0">
       {/* Hero Section */}
@@ -169,11 +154,11 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
-          {SERVICES.map((item, index) => {
-            const Icon = item.icon;
+          {services.map((item, index) => {
+            const Icon = ICON_MAP[item.icon_name] || Wrench;
             return (
               <motion.div
-                key={item.id}
+                key={item.id || item.service_id}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -204,9 +189,9 @@ export default function HomePage() {
 
                   <CardFooter className="mt-auto">
                     <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                      Starting <span className="text-primary text-base font-extrabold">{item.price}</span>
+                      Starting <span className="text-primary text-base font-extrabold">{item.price_inr}</span>
                     </span>
-                    <Link href={`/booking?service=${item.id}`}>
+                    <Link href={`/booking?service=${item.service_id}`}>
                       <Button variant="ghost" size="sm" className="px-2 text-secondary hover:text-secondary-dark">
                         <span>Book</span>
                         <ArrowRight className="w-4 h-4 ml-1" />
