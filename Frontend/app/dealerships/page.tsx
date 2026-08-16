@@ -2,20 +2,22 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import {
   Building2,
   Sparkles,
   ShieldCheck,
-  Check,
+  CheckCircle2,
   Phone,
   Mail,
   MapPin,
-  ChevronRight,
+  ArrowRight,
   Star,
   Wrench,
   Award,
   Clock,
-  Car
+  Car,
+  Shield
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
@@ -115,39 +117,38 @@ export default function DealershipsPage() {
 
   return (
     <div className="pb-16 space-y-16">
-      {/* Header Banner Section - KB Garage Yellow/Gold Theme */}
+      {/* Header Banner Section */}
       <section className="bg-primary text-white py-16 px-margin-mobile md:px-margin-desktop text-center relative overflow-hidden">
         <div className="max-w-container-max mx-auto space-y-4 relative z-10">
+          <Badge variant="secondary">Authorized Partner Network</Badge>
           <h1 className="font-heading text-4xl sm:text-5xl font-extrabold text-white">
             Authorized <span className="gold-shine-text">Dealerships</span>
           </h1>
-
-          <p className="text-slate-300 max-w-2xl mx-auto text-base sm:text-lg font-sans">
+          <p className="text-slate-300 max-w-2xl mx-auto text-base sm:text-lg">
             KB Garage official dealership partnerships bringing Formula 1™ grade fluid engineering, multi-brand garage blueprints, and doorstep mobile vehicle care under one roof.
           </p>
         </div>
       </section>
 
-
-      {/* Filter Navigation Tabs - Yellow/Gold Accent */}
+      {/* Filter Navigation Tabs */}
       <section className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
         <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
           <button
             onClick={() => setActiveFilter("all")}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-heading font-semibold uppercase tracking-wider transition-all duration-200 ${
+            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded transition-all ${
               activeFilter === "all"
-                ? "bg-secondary text-on-secondary font-bold shadow-md shadow-secondary/20"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                ? "bg-secondary text-on-secondary shadow-sm font-extrabold"
+                : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-semibold"
             }`}
           >
             All Divisions (3)
           </button>
           <button
             onClick={() => setActiveFilter("petronas")}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-heading font-semibold uppercase tracking-wider transition-all duration-200 flex items-center gap-1.5 ${
+            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded transition-all flex items-center gap-1.5 ${
               activeFilter === "petronas"
-                ? "bg-secondary text-on-secondary font-bold shadow-md shadow-secondary/20"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                ? "bg-secondary text-on-secondary shadow-sm font-extrabold"
+                : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-semibold"
             }`}
           >
             <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
@@ -155,20 +156,20 @@ export default function DealershipsPage() {
           </button>
           <button
             onClick={() => setActiveFilter("indomotive")}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-heading font-semibold uppercase tracking-wider transition-all duration-200 ${
+            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded transition-all ${
               activeFilter === "indomotive"
-                ? "bg-secondary text-on-secondary font-bold shadow-md shadow-secondary/20"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                ? "bg-secondary text-on-secondary shadow-sm font-extrabold"
+                : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-semibold"
             }`}
           >
             Indomotive
           </button>
           <button
             onClick={() => setActiveFilter("spinoto")}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-heading font-semibold uppercase tracking-wider transition-all duration-200 ${
+            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded transition-all ${
               activeFilter === "spinoto"
-                ? "bg-secondary text-on-secondary font-bold shadow-md shadow-secondary/20"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                ? "bg-secondary text-on-secondary shadow-sm font-extrabold"
+                : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-semibold"
             }`}
           >
             Spinoto Mobile
@@ -176,122 +177,131 @@ export default function DealershipsPage() {
         </div>
       </section>
 
-      {/* Dealership Cards List - Standard Theme Formatting */}
+      {/* Dealership Cards List */}
       <section className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop space-y-10">
-        {filteredDealerships.map((dealership) => (
-          <Card
+        {filteredDealerships.map((dealership, index) => (
+          <motion.div
             key={dealership.id}
             id={dealership.id}
-            className="overflow-hidden border border-slate-200/90 bg-white text-slate-900 shadow-md hover:shadow-xl transition-all duration-300"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: index * 0.1 }}
           >
-            {/* Top Yellow Gold Accent Line */}
-            <div className="h-1.5 w-full bg-secondary" />
+            <Card className="flex flex-col relative overflow-hidden border border-outline-variant group">
+              {/* Top Accent Line */}
+              <div className="h-1.5 w-full bg-secondary" />
 
-            <CardHeader className="p-6 sm:p-8 space-y-3">
-              <div className="flex items-start justify-between gap-4 flex-wrap">
-                <div className="space-y-1">
-                  <span className="font-mono text-xs uppercase tracking-widest text-secondary font-bold">
-                    KB Garage Official Partner Division
-                  </span>
-
-                  <CardTitle className="text-2xl sm:text-3xl font-heading font-extrabold text-slate-900">
-                    {dealership.name}
-                  </CardTitle>
-
-                  <CardDescription className="text-sm italic font-medium text-slate-600 font-sans">
-                    "{dealership.tagline}"
-                  </CardDescription>
-                </div>
-
-                {/* Badge - Yellow Gold Palette */}
-                <div>
-                  {dealership.isFirstInIndia ? (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold font-mono bg-secondary/15 text-slate-900 border border-secondary/40 shadow-sm">
-                      <Star className="w-3.5 h-3.5 text-secondary fill-secondary" />
-                      {dealership.badge}
+              <CardHeader className="p-6 sm:p-8 space-y-3">
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div className="space-y-1">
+                    <span className="text-xs font-bold uppercase tracking-wider text-secondary">
+                      KB Garage Official Partner Division
                     </span>
-                  ) : (
-                    <Badge variant="secondary" className="text-xs font-mono py-1 px-3 bg-secondary/10 text-slate-900 border border-secondary/30">
-                      {dealership.badge}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-
-            <CardContent className="px-6 sm:px-8 space-y-6">
-              {/* Description */}
-              <p className="text-sm sm:text-base leading-relaxed text-slate-700 font-sans">
-                {dealership.description}
-              </p>
-
-              {/* Stats Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {dealership.stats.map((stat, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3.5 rounded-xl text-center border bg-slate-50 border-slate-200/80 text-slate-900"
-                  >
-                    <div className="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold mb-0.5">
-                      {stat.label}
-                    </div>
-                    <div className="text-sm font-heading font-bold text-slate-900">
-                      {stat.value}
-                    </div>
+                    <CardTitle className="text-2xl sm:text-3xl font-heading font-extrabold text-primary">
+                      {dealership.name}
+                    </CardTitle>
+                    <CardDescription className="text-sm italic font-medium text-on-surface-variant">
+                      &quot;{dealership.tagline}&quot;
+                    </CardDescription>
                   </div>
-                ))}
-              </div>
 
-              {/* Capabilities Checklist */}
-              <div className="space-y-3 pt-1">
-                <h4 className="text-xs font-mono uppercase tracking-wider font-bold text-slate-800">
-                  Key Division Offerings:
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                  {dealership.highlights.map((highlight, idx) => (
-                    <div key={idx} className="flex items-start gap-2 text-xs sm:text-sm">
-                      <Check className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
-                      <span className="text-slate-700 font-sans">
-                        {highlight}
-                      </span>
+                  <div>
+                    <Badge variant="secondary">{dealership.badge}</Badge>
+                  </div>
+                </div>
+              </CardHeader>
+
+              <CardContent className="px-6 sm:px-8 space-y-6">
+                <p className="text-sm sm:text-base leading-relaxed text-on-surface-variant font-body">
+                  {dealership.description}
+                </p>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {dealership.stats.map((stat, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3.5 rounded bg-surface-container-low border border-outline-variant text-center"
+                    >
+                      <div className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+                        {stat.label}
+                      </div>
+                      <div className="font-heading font-extrabold text-primary text-sm mt-1 gold-shine-text">
+                        {stat.value}
+                      </div>
                     </div>
                   ))}
                 </div>
-              </div>
 
-              {/* Location & Contact Info Bar */}
-              <div className="p-4 rounded-xl border bg-slate-50 border-slate-200/80 text-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-secondary shrink-0" />
-                  <span className="font-sans font-medium">{dealership.location}</span>
+                {/* Key Offerings Checklist */}
+                <div className="space-y-2.5 pt-1">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-primary">
+                    Key Division Capabilities & Standards:
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {dealership.highlights.map((highlight, idx) => (
+                      <div key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-on-surface-variant">
+                        <CheckCircle2 className="w-4 h-4 text-tertiary shrink-0 mt-0.5" />
+                        <span>{highlight}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex items-center gap-4 flex-wrap">
-                  <a href={`tel:${dealership.phone.replace(/\s+/g, '')}`} className="flex items-center gap-1.5 hover:text-secondary transition-colors font-mono">
-                    <Phone className="w-3.5 h-3.5 text-secondary" />
-                    <span>{dealership.phone}</span>
-                  </a>
-                  <a href={`mailto:${dealership.email}`} className="flex items-center gap-1.5 hover:text-secondary transition-colors font-mono">
-                    <Mail className="w-3.5 h-3.5 text-secondary" />
-                    <span>{dealership.email}</span>
-                  </a>
-                </div>
-              </div>
-            </CardContent>
 
-            <CardFooter className="px-6 sm:px-8 py-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-end">
-              <Link href="/booking">
-                <Button
-                  variant="primary"
-                  size="sm"
-                  className="text-xs font-heading uppercase tracking-wider flex items-center gap-1.5 bg-secondary hover:bg-secondary-dark text-on-secondary font-bold shadow-md shadow-secondary/20"
-                >
-                  <span>Book Service Now</span>
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </Link>
-            </CardFooter>
-          </Card>
+                {/* Location & Contact Bar */}
+                <div className="p-4 rounded bg-surface-container-lowest border border-outline-variant flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-on-surface-variant">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-secondary shrink-0" />
+                    <span className="font-medium">{dealership.location}</span>
+                  </div>
+                  <div className="flex items-center gap-4 flex-wrap font-medium">
+                    <a href={`tel:${dealership.phone.replace(/\s+/g, "")}`} className="flex items-center gap-1 hover:text-secondary transition-colors">
+                      <Phone className="w-3.5 h-3.5 text-secondary shrink-0" />
+                      <span>{dealership.phone}</span>
+                    </a>
+                    <a href={`mailto:${dealership.email}`} className="flex items-center gap-1 hover:text-secondary transition-colors">
+                      <Mail className="w-3.5 h-3.5 text-secondary shrink-0" />
+                      <span>{dealership.email}</span>
+                    </a>
+                  </div>
+                </div>
+              </CardContent>
+
+              <CardFooter className="px-6 sm:px-8 py-4 border-t border-surface-container flex items-center justify-end">
+                <Link href={`/booking?dealership=${dealership.id}`}>
+                  <Button variant="primary" size="md" className="flex items-center gap-2">
+                    <span>Book Division Service</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </CardFooter>
+            </Card>
+          </motion.div>
         ))}
+      </section>
+
+      {/* Feature Guarantee Box */}
+      <section className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+        <div className="bg-surface-container-lowest border border-outline-variant rounded-lg p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-sm">
+          <div className="space-y-3 max-w-2xl">
+            <div className="flex items-center gap-2 text-tertiary font-bold text-xs uppercase tracking-wider">
+              <Shield className="w-5 h-5" />
+              <span>KB Garage Guarantee</span>
+            </div>
+            <h3 className="font-heading text-2xl font-bold text-primary">
+              All Division Services Backed by KB Garage Engineering Standards
+            </h3>
+            <p className="text-on-surface-variant text-sm leading-relaxed">
+              Whether serviced at our flagship Petronas hub, Indomotive franchise bay, or via Spinoto doorstep mobile mechanics, every vehicle receives certified diagnostic care.
+            </p>
+          </div>
+          <Link href="/booking">
+            <Button variant="primary" size="lg" className="shrink-0">
+              Schedule Appointment
+            </Button>
+          </Link>
+        </div>
       </section>
     </div>
   );
