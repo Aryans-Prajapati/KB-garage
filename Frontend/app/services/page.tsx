@@ -7,7 +7,7 @@ import { Check, Shield, Wrench, Zap, Sparkles, ShieldCheck, ArrowRight } from "l
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { fetchServices, FALLBACK_SERVICES } from "@/lib/api";
+import { fetchServices, FALLBACK_SERVICES, getCached } from "@/lib/api";
 
 const ICON_MAP: Record<string, any> = {
   Wrench: Wrench,
@@ -17,8 +17,14 @@ const ICON_MAP: Record<string, any> = {
 };
 
 export default function ServicesPage() {
-  const [services, setServices] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cachedData = getCached<any[]>("services");
+  const [services, setServices] = useState<any[]>(() => {
+    if (Array.isArray(cachedData) && cachedData.length > 0) {
+      return cachedData.filter((s: any) => s.is_active !== false);
+    }
+    return [];
+  });
+  const [loading, setLoading] = useState(!cachedData);
 
   useEffect(() => {
     fetchServices()

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -55,6 +55,7 @@ import {
   fetchAdminUsers,
   createAdminUser,
   deleteAdminUser,
+  getCached,
 } from "@/lib/api";
 
 export default function AdminDashboardPage() {
@@ -148,12 +149,36 @@ export default function AdminDashboardPage() {
     service_name: "",
   });
 
+  const dataLoadedRef = useRef(false);
+
   useEffect(() => {
     const savedToken = localStorage.getItem("kb_admin_token");
     if (!savedToken) {
       router.push("/admin/login");
     } else {
       setToken(savedToken);
+      // Hydrate state from client-side cache immediately if available
+      const cachedStats = getCached<any>(`admin_stats_${savedToken}`);
+      const cachedServices = getCached<any[]>("services");
+      if (cachedStats && Array.isArray(cachedServices)) {
+        setStats(cachedStats);
+        setServices(cachedServices);
+        const cachedBookings = getCached<any[]>(`bookings_All`);
+        if (Array.isArray(cachedBookings)) setBookings(cachedBookings);
+        const cachedContacts = getCached<any[]>("contacts");
+        if (Array.isArray(cachedContacts)) setContacts(cachedContacts);
+        const cachedUsers = getCached<any[]>("admin_users");
+        if (Array.isArray(cachedUsers)) setAdminUsers(cachedUsers);
+        const cachedGallery = getCached<any[]>("gallery");
+        if (Array.isArray(cachedGallery)) setGallery(cachedGallery);
+        const cachedBlogs = getCached<any[]>("blogs");
+        if (Array.isArray(cachedBlogs)) setBlogs(cachedBlogs);
+        const cachedReviews = getCached<any[]>("reviews");
+        if (Array.isArray(cachedReviews)) setReviews(cachedReviews);
+
+        setLoading(false);
+        dataLoadedRef.current = true;
+      }
     }
   }, [router]);
 
@@ -161,36 +186,53 @@ export default function AdminDashboardPage() {
     if (token) {
       loadData();
     }
-  }, [token, statusFilter]);
+  }, [token]);
 
-  const loadData = async () => {
-    setLoading(true);
+  // Decoupled effect: changing booking filter ONLY re-fetches bookings
+  useEffect(() => {
+    if (token && dataLoadedRef.current) {
+      fetchAllBookings(token, statusFilter).then((data) => {
+        if (Array.isArray(data)) {
+          setBookings(data);
+        }
+      });
+    }
+  }, [statusFilter]);
+
+  const loadData = async (options?: { forceFetch?: boolean }) => {
+    if (!dataLoadedRef.current) {
+      setLoading(true);
+    }
     try {
-      if (token) {
-        const statsRes = await fetchDashboardStats(token);
-        setStats(statsRes);
-
-        const bookingsRes = await fetchAllBookings(token, statusFilter);
-        setBookings(bookingsRes);
-
-        const contactsRes = await fetchAllContactMessages(token);
-        setContacts(contactsRes);
-
-        const usersRes = await fetchAdminUsers(token);
-        setAdminUsers(usersRes);
-      }
-
-      const [servData, galData, blogData, revData] = await Promise.all([
-        fetchServices(),
-        fetchGalleryItems(),
-        fetchBlogPosts(),
-        fetchReviews(),
+      const [
+        statsRes,
+        bookingsRes,
+        contactsRes,
+        usersRes,
+        servData,
+        galData,
+        blogData,
+        revData,
+      ] = await Promise.all([
+        token ? fetchDashboardStats(token, options) : Promise.resolve(null),
+        token ? fetchAllBookings(token, statusFilter, options) : Promise.resolve([]),
+        token ? fetchAllContactMessages(token, options) : Promise.resolve([]),
+        token ? fetchAdminUsers(token, options) : Promise.resolve([]),
+        fetchServices(options),
+        fetchGalleryItems(options),
+        fetchBlogPosts(options),
+        fetchReviews(options),
       ]);
 
-      setServices(servData);
-      setGallery(galData);
-      setBlogs(blogData);
-      setReviews(revData);
+      if (statsRes) setStats(statsRes);
+      if (bookingsRes) setBookings(bookingsRes);
+      if (contactsRes) setContacts(contactsRes);
+      if (usersRes) setAdminUsers(usersRes);
+      if (servData) setServices(servData);
+      if (galData) setGallery(galData);
+      if (blogData) setBlogs(blogData);
+      if (revData) setReviews(revData);
+      dataLoadedRef.current = true;
     } catch (err) {
       console.warn("Data loading issue:", err);
     } finally {

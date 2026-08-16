@@ -7,7 +7,7 @@ import { Star, ArrowRight, BookOpen, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { fetchBlogPosts } from "@/lib/api";
+import { fetchBlogPosts, getCached } from "@/lib/api";
 
 const FALLBACK_POSTS = [
   {
@@ -40,7 +40,11 @@ const FALLBACK_POSTS = [
 ];
 
 export default function BlogPage() {
-  const [posts, setPosts] = useState<any[]>(FALLBACK_POSTS);
+  const cachedData = getCached<any[]>("blogs");
+  const [posts, setPosts] = useState<any[]>(() => {
+    if (Array.isArray(cachedData) && cachedData.length > 0) return cachedData;
+    return FALLBACK_POSTS;
+  });
 
   useEffect(() => {
     fetchBlogPosts()

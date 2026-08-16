@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Stepper } from "@/components/ui/stepper";
-import { createBooking, fetchServices } from "@/lib/api";
+import { createBooking, fetchServices, getCached } from "@/lib/api";
 
 const STEPS = [
   { id: 1, title: "Vehicle Selection" },
@@ -374,8 +374,19 @@ export default function BookingPage() {
   const [year, setYear] = useState("2024");
   const [plate, setPlate] = useState("");
 
-  const [servicesList, setServicesList] = useState<any[]>(SERVICES_LIST);
-  const [selectedService, setSelectedService] = useState(SERVICES_LIST[0]);
+  const cachedServicesData = getCached<any[]>("services");
+  const [servicesList, setServicesList] = useState<any[]>(() => {
+    if (Array.isArray(cachedServicesData) && cachedServicesData.length > 0) {
+      return cachedServicesData.map((s: any) => ({
+        id: s.service_id || String(s.id),
+        title: s.title,
+        price: s.price_inr,
+        desc: s.desc,
+      }));
+    }
+    return SERVICES_LIST;
+  });
+  const [selectedService, setSelectedService] = useState(() => servicesList[0] || SERVICES_LIST[0]);
   const [selectedDate, setSelectedDate] = useState("2026-08-12");
   const [selectedTime, setSelectedTime] = useState("10:30 AM");
 
@@ -389,7 +400,9 @@ export default function BookingPage() {
           desc: s.desc,
         }));
         setServicesList(formatted);
-        setSelectedService(formatted[0]);
+        if (!servicesList || servicesList.length === 0) {
+          setSelectedService(formatted[0]);
+        }
       }
     });
   }, []);

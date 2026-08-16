@@ -7,7 +7,7 @@ import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { fetchGalleryItems } from "@/lib/api";
+import { fetchGalleryItems, getCached } from "@/lib/api";
 
 const FALLBACK_GALLERY_ITEMS = [
   {
@@ -69,7 +69,11 @@ const CATEGORIES = [
 ];
 
 export default function GalleryPage() {
-  const [items, setItems] = useState<any[]>(FALLBACK_GALLERY_ITEMS);
+  const cachedData = getCached<any[]>("gallery");
+  const [items, setItems] = useState<any[]>(() => {
+    if (Array.isArray(cachedData) && cachedData.length > 0) return cachedData;
+    return FALLBACK_GALLERY_ITEMS;
+  });
   const [filter, setFilter] = useState("all");
 
   useEffect(() => {

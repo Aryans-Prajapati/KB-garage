@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { fetchServices, FALLBACK_SERVICES } from "@/lib/api";
+import { fetchServices, FALLBACK_SERVICES, getCached } from "@/lib/api";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -50,7 +50,13 @@ const REVIEWS = [
 ];
 
 export default function HomePage() {
-  const [services, setServices] = useState<any[]>([]);
+  const cachedData = getCached<any[]>("services");
+  const [services, setServices] = useState<any[]>(() => {
+    if (Array.isArray(cachedData) && cachedData.length > 0) {
+      return cachedData.filter((s: any) => s.is_active !== false).slice(0, 4);
+    }
+    return [];
+  });
 
   useEffect(() => {
     fetchServices()

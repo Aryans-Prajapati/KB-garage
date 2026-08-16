@@ -89,13 +89,61 @@ export const FALLBACK_SERVICES = [
   },
 ];
 
-export async function fetchServices() {
+// Client-Side In-Memory Cache Implementation
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
+const apiCache = new Map<string, CacheEntry<any>>();
+const DEFAULT_TTL_MS = 5 * 60 * 1000; // 5 minutes cache TTL
+
+export function getCached<T>(key: string, ttlMs = DEFAULT_TTL_MS): T | null {
+  const entry = apiCache.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.timestamp > ttlMs) {
+    apiCache.delete(key);
+    return null;
+  }
+  return entry.data as T;
+}
+
+export function setCached<T>(key: string, data: T): void {
+  apiCache.set(key, { data, timestamp: Date.now() });
+}
+
+export function hasCachedData(key: string, ttlMs = DEFAULT_TTL_MS): boolean {
+  return getCached(key, ttlMs) !== null;
+}
+
+export function invalidateCache(keyPrefixOrExact?: string): void {
+  if (!keyPrefixOrExact) {
+    apiCache.clear();
+    return;
+  }
+  for (const key of apiCache.keys()) {
+    if (key === keyPrefixOrExact || key.startsWith(keyPrefixOrExact)) {
+      apiCache.delete(key);
+    }
+  }
+}
+
+export async function fetchServices(options?: { forceFetch?: boolean }) {
+  const cacheKey = "services";
+  if (!options?.forceFetch) {
+    const cached = getCached<any[]>(cacheKey);
+    if (cached) return cached;
+  }
+
   try {
     const res = await fetch(`${API_BASE_URL}/services/`);
     if (!res.ok) throw new Error("Failed to fetch services");
-    return await res.json();
+    const data = await res.json();
+    setCached(cacheKey, data);
+    return data;
   } catch (err) {
     console.warn("Using fallback services data:", err);
+    setCached(cacheKey, FALLBACK_SERVICES);
     return FALLBACK_SERVICES;
   }
 }
@@ -121,16 +169,22 @@ export async function createBooking(bookingData: {
       body: JSON.stringify(bookingData),
     });
     if (!res.ok) throw new Error("Booking creation failed");
-    return await res.json();
+    const result = await res.json();
+    invalidateCache("bookings");
+    invalidateCache("admin_stats");
+    return result;
   } catch (err) {
     console.warn("Fallback booking creation:", err);
-    return {
+    const fallbackResult = {
       id: Date.now(),
       reference_id: `KB-${Math.floor(100000 + Math.random() * 900000)}`,
       ...bookingData,
       status: "Confirmed",
       created_at: new Date().toISOString(),
     };
+    invalidateCache("bookings");
+    invalidateCache("admin_stats");
+    return fallbackResult;
   }
 }
 
@@ -249,18 +303,23 @@ export async function resetAdminPasswordWithOtp(email: string, otp_code: string,
   }
 }
 
+export async function fetchDashboardStats(token: string, options?: { forceFetch?: boolean }) {
+  const cacheKey = `admin_stats_${token}`;
+  if (!options?.forceFetch) {
+    const cached = getCached<any>(cacheKey);
+    if (cached) return cached;
+  }
 
-
-
-export async function fetchDashboardStats(token: string) {
   try {
     const res = await fetch(`${API_BASE_URL}/admin/stats`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error("Failed to fetch dashboard stats");
-    return await res.json();
+    const data = await res.json();
+    setCached(cacheKey, data);
+    return data;
   } catch (err) {
-    return {
+    const fallback = {
       total_bookings: 2,
       pending_bookings: 1,
       confirmed_bookings: 1,
@@ -273,10 +332,18 @@ export async function fetchDashboardStats(token: string) {
       contact_messages: 1,
       unread_messages: 1,
     };
+    setCached(cacheKey, fallback);
+    return fallback;
   }
 }
 
-export async function fetchAllBookings(token: string, statusFilter?: string) {
+export async function fetchAllBookings(token: string, statusFilter?: string, options?: { forceFetch?: boolean }) {
+  const cacheKey = `bookings_${statusFilter || "All"}`;
+  if (!options?.forceFetch) {
+    const cached = getCached<any[]>(cacheKey);
+    if (cached) return cached;
+  }
+
   try {
     let url = `${API_BASE_URL}/bookings/`;
     if (statusFilter && statusFilter !== "All") {
@@ -286,8 +353,11 @@ export async function fetchAllBookings(token: string, statusFilter?: string) {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error("Failed to fetch bookings");
-    return await res.json();
+    const data = await res.json();
+    setCached(cacheKey, data);
+    return data;
   } catch (err) {
+    setCached(cacheKey, []);
     return [];
   }
 }
@@ -302,7 +372,10 @@ export async function updateBookingStatus(token: string, bookingId: number, stat
     body: JSON.stringify({ status }),
   });
   if (!res.ok) throw new Error("Failed to update status");
-  return await res.json();
+  const data = await res.json();
+  invalidateCache("bookings");
+  invalidateCache("admin_stats");
+  return data;
 }
 
 export async function deleteBookingApi(token: string, bookingId: number) {
@@ -318,6 +391,8 @@ export async function deleteBookingApi(token: string, bookingId: number) {
     } catch (e) {}
     throw new Error(detail);
   }
+  invalidateCache("bookings");
+  invalidateCache("admin_stats");
   try {
     return await res.json();
   } catch (e) {
@@ -335,7 +410,10 @@ export async function createServiceApi(token: string, data: any) {
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Failed to create service");
-  return await res.json();
+  const result = await res.json();
+  invalidateCache("services");
+  invalidateCache("admin_stats");
+  return result;
 }
 
 export async function updateServiceApi(token: string, serviceId: number, data: any) {
@@ -348,7 +426,10 @@ export async function updateServiceApi(token: string, serviceId: number, data: a
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Failed to update service");
-  return await res.json();
+  const result = await res.json();
+  invalidateCache("services");
+  invalidateCache("admin_stats");
+  return result;
 }
 
 export async function deleteServiceApi(token: string, serviceId: number) {
@@ -364,6 +445,8 @@ export async function deleteServiceApi(token: string, serviceId: number) {
     } catch (e) {}
     throw new Error(detail);
   }
+  invalidateCache("services");
+  invalidateCache("admin_stats");
   try {
     return await res.json();
   } catch (e) {
@@ -372,12 +455,21 @@ export async function deleteServiceApi(token: string, serviceId: number) {
 }
 
 // Gallery API
-export async function fetchGalleryItems() {
+export async function fetchGalleryItems(options?: { forceFetch?: boolean }) {
+  const cacheKey = "gallery";
+  if (!options?.forceFetch) {
+    const cached = getCached<any[]>(cacheKey);
+    if (cached) return cached;
+  }
+
   try {
     const res = await fetch(`${API_BASE_URL}/gallery/`);
     if (!res.ok) throw new Error("Failed to fetch gallery items");
-    return await res.json();
+    const data = await res.json();
+    setCached(cacheKey, data);
+    return data;
   } catch (err) {
+    setCached(cacheKey, []);
     return [];
   }
 }
@@ -392,7 +484,10 @@ export async function createGalleryItemApi(token: string, data: any) {
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Failed to create gallery item");
-  return await res.json();
+  const result = await res.json();
+  invalidateCache("gallery");
+  invalidateCache("admin_stats");
+  return result;
 }
 
 export async function updateGalleryItemApi(token: string, itemId: number, data: any) {
@@ -405,7 +500,10 @@ export async function updateGalleryItemApi(token: string, itemId: number, data: 
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Failed to update gallery item");
-  return await res.json();
+  const result = await res.json();
+  invalidateCache("gallery");
+  invalidateCache("admin_stats");
+  return result;
 }
 
 export async function deleteGalleryItemApi(token: string, itemId: number) {
@@ -421,6 +519,8 @@ export async function deleteGalleryItemApi(token: string, itemId: number) {
     } catch (e) {}
     throw new Error(detail);
   }
+  invalidateCache("gallery");
+  invalidateCache("admin_stats");
   try {
     return await res.json();
   } catch (e) {
@@ -429,12 +529,21 @@ export async function deleteGalleryItemApi(token: string, itemId: number) {
 }
 
 // Blogs API
-export async function fetchBlogPosts() {
+export async function fetchBlogPosts(options?: { forceFetch?: boolean }) {
+  const cacheKey = "blogs";
+  if (!options?.forceFetch) {
+    const cached = getCached<any[]>(cacheKey);
+    if (cached) return cached;
+  }
+
   try {
     const res = await fetch(`${API_BASE_URL}/blogs/`);
     if (!res.ok) throw new Error("Failed to fetch blog posts");
-    return await res.json();
+    const data = await res.json();
+    setCached(cacheKey, data);
+    return data;
   } catch (err) {
+    setCached(cacheKey, []);
     return [];
   }
 }
@@ -449,7 +558,10 @@ export async function createBlogPostApi(token: string, data: any) {
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Failed to create blog post");
-  return await res.json();
+  const result = await res.json();
+  invalidateCache("blogs");
+  invalidateCache("admin_stats");
+  return result;
 }
 
 export async function updateBlogPostApi(token: string, postId: number, data: any) {
@@ -462,7 +574,10 @@ export async function updateBlogPostApi(token: string, postId: number, data: any
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Failed to update blog post");
-  return await res.json();
+  const result = await res.json();
+  invalidateCache("blogs");
+  invalidateCache("admin_stats");
+  return result;
 }
 
 export async function deleteBlogPostApi(token: string, postId: number) {
@@ -478,6 +593,8 @@ export async function deleteBlogPostApi(token: string, postId: number) {
     } catch (e) {}
     throw new Error(detail);
   }
+  invalidateCache("blogs");
+  invalidateCache("admin_stats");
   try {
     return await res.json();
   } catch (e) {
@@ -486,12 +603,21 @@ export async function deleteBlogPostApi(token: string, postId: number) {
 }
 
 // Reviews API
-export async function fetchReviews() {
+export async function fetchReviews(options?: { forceFetch?: boolean }) {
+  const cacheKey = "reviews";
+  if (!options?.forceFetch) {
+    const cached = getCached<any[]>(cacheKey);
+    if (cached) return cached;
+  }
+
   try {
     const res = await fetch(`${API_BASE_URL}/reviews/`);
     if (!res.ok) throw new Error("Failed to fetch reviews");
-    return await res.json();
+    const data = await res.json();
+    setCached(cacheKey, data);
+    return data;
   } catch (err) {
+    setCached(cacheKey, []);
     return [];
   }
 }
@@ -506,7 +632,10 @@ export async function createReviewApi(token: string, data: any) {
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Failed to create review");
-  return await res.json();
+  const result = await res.json();
+  invalidateCache("reviews");
+  invalidateCache("admin_stats");
+  return result;
 }
 
 export async function updateReviewApi(token: string, reviewId: number, data: any) {
@@ -519,7 +648,10 @@ export async function updateReviewApi(token: string, reviewId: number, data: any
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Failed to update review");
-  return await res.json();
+  const result = await res.json();
+  invalidateCache("reviews");
+  invalidateCache("admin_stats");
+  return result;
 }
 
 export async function deleteReviewApi(token: string, reviewId: number) {
@@ -535,6 +667,8 @@ export async function deleteReviewApi(token: string, reviewId: number) {
     } catch (e) {}
     throw new Error(detail);
   }
+  invalidateCache("reviews");
+  invalidateCache("admin_stats");
   try {
     return await res.json();
   } catch (e) {
@@ -551,21 +685,35 @@ export async function submitContactForm(data: { name: string; email: string; pho
       body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error("Contact form submission failed");
-    return await res.json();
+    const result = await res.json();
+    invalidateCache("contacts");
+    invalidateCache("admin_stats");
+    return result;
   } catch (err) {
     console.warn("Fallback contact submission:", err);
+    invalidateCache("contacts");
+    invalidateCache("admin_stats");
     return { success: true };
   }
 }
 
-export async function fetchAllContactMessages(token: string) {
+export async function fetchAllContactMessages(token: string, options?: { forceFetch?: boolean }) {
+  const cacheKey = "contacts";
+  if (!options?.forceFetch) {
+    const cached = getCached<any[]>(cacheKey);
+    if (cached) return cached;
+  }
+
   try {
     const res = await fetch(`${API_BASE_URL}/contact/`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error("Failed to fetch contact messages");
-    return await res.json();
+    const data = await res.json();
+    setCached(cacheKey, data);
+    return data;
   } catch (err) {
+    setCached(cacheKey, []);
     return [];
   }
 }
@@ -583,6 +731,8 @@ export async function deleteContactMessageApi(token: string, contactId: number) 
     } catch (e) {}
     throw new Error(detail);
   }
+  invalidateCache("contacts");
+  invalidateCache("admin_stats");
   try {
     return await res.json();
   } catch (e) {
@@ -613,14 +763,23 @@ export async function uploadImageApi(token: string, file: File): Promise<{ url: 
 }
 
 // Admin Users Management API
-export async function fetchAdminUsers(token: string) {
+export async function fetchAdminUsers(token: string, options?: { forceFetch?: boolean }) {
+  const cacheKey = "admin_users";
+  if (!options?.forceFetch) {
+    const cached = getCached<any[]>(cacheKey);
+    if (cached) return cached;
+  }
+
   try {
     const res = await fetch(`${API_BASE_URL}/admin/users`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error("Failed to fetch admin users");
-    return await res.json();
+    const data = await res.json();
+    setCached(cacheKey, data);
+    return data;
   } catch (err) {
+    setCached(cacheKey, []);
     return [];
   }
 }
@@ -638,6 +797,7 @@ export async function createAdminUser(token: string, userData: { username: strin
   if (!res.ok) {
     throw new Error(data.detail || Object.values(data).flat().join(" ") || "Failed to create admin user");
   }
+  invalidateCache("admin_users");
   return data;
 }
 
@@ -653,6 +813,7 @@ export async function deleteAdminUser(token: string, userId: number) {
     data = {};
   }
   if (!res.ok) throw new Error(data.detail || "Failed to delete admin user");
+  invalidateCache("admin_users");
   return data;
 }
 
