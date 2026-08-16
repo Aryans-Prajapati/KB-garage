@@ -20,6 +20,16 @@ function getErrorMessage(data: any, fallback: string): string {
   return fallback;
 }
 
+async function handleResponseError(res: Response, fallback: string): Promise<never> {
+  let detail = fallback;
+  try {
+    const data = await res.json();
+    detail = getErrorMessage(data, fallback);
+  } catch (e) {}
+  throw new Error(detail);
+}
+
+
 // Fallback Indian initial data with valid internet image URLs
 export const FALLBACK_SERVICES = [
   {
@@ -409,7 +419,7 @@ export async function createServiceApi(token: string, data: any) {
     },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Failed to create service");
+  if (!res.ok) await handleResponseError(res, "Failed to create service");
   const result = await res.json();
   invalidateCache("services");
   invalidateCache("admin_stats");
@@ -425,7 +435,7 @@ export async function updateServiceApi(token: string, serviceId: number, data: a
     },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Failed to update service");
+  if (!res.ok) await handleResponseError(res, "Failed to update service");
   const result = await res.json();
   invalidateCache("services");
   invalidateCache("admin_stats");
@@ -483,7 +493,7 @@ export async function createGalleryItemApi(token: string, data: any) {
     },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Failed to create gallery item");
+  if (!res.ok) await handleResponseError(res, "Failed to create gallery item");
   const result = await res.json();
   invalidateCache("gallery");
   invalidateCache("admin_stats");
@@ -499,7 +509,7 @@ export async function updateGalleryItemApi(token: string, itemId: number, data: 
     },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Failed to update gallery item");
+  if (!res.ok) await handleResponseError(res, "Failed to update gallery item");
   const result = await res.json();
   invalidateCache("gallery");
   invalidateCache("admin_stats");
@@ -557,7 +567,7 @@ export async function createBlogPostApi(token: string, data: any) {
     },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Failed to create blog post");
+  if (!res.ok) await handleResponseError(res, "Failed to create blog post");
   const result = await res.json();
   invalidateCache("blogs");
   invalidateCache("admin_stats");
@@ -573,7 +583,7 @@ export async function updateBlogPostApi(token: string, postId: number, data: any
     },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Failed to update blog post");
+  if (!res.ok) await handleResponseError(res, "Failed to update blog post");
   const result = await res.json();
   invalidateCache("blogs");
   invalidateCache("admin_stats");
