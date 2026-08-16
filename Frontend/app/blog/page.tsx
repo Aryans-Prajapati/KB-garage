@@ -79,6 +79,7 @@ export default function BlogPage() {
                   src={post.image}
                   alt={post.title}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute top-3 left-3">
